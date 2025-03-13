@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'auth_service.dart';
 import 'signup_page.dart';
-import 'customer/home_page.dart'; // Assuming you have a HomePage
+import 'artist/home_page.dart'; // Assuming you have an ArtistHomePage
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class ArtistLoginPage extends StatefulWidget {
+  const ArtistLoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<ArtistLoginPage> createState() => _ArtistLoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _ArtistLoginPageState extends State<ArtistLoginPage> {
   final _formKey = GlobalKey<FormState>();
   String email = "";
   String password = "";
@@ -29,7 +29,6 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // App Logo
                 Column(
                   children: [
                     Image.asset("assets/logo.png", height: 80),
@@ -60,10 +59,8 @@ class _LoginPageState extends State<LoginPage> {
                 ),
 
                 const SizedBox(height: 30),
-
-                // Welcome Message
                 const Text(
-                  "Hi, Welcome Back!",
+                  "Welcome, Artist!",
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -72,7 +69,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 5),
                 const Text(
-                  "Hope you're doing fine.",
+                  "Manage your bookings and portfolio.",
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey,
@@ -80,8 +77,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
 
                 const SizedBox(height: 30),
-
-                // Form Fields
                 Form(
                   key: _formKey,
                   child: Column(
@@ -133,8 +128,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
 
                 const SizedBox(height: 10),
-
-                // Forgot Password
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
@@ -147,8 +140,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
 
                 const SizedBox(height: 10),
-
-                // Sign In Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -170,32 +161,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
 
                 const SizedBox(height: 20),
-
-                // OR Divider
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Divider(thickness: 1, color: Colors.grey[300]),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      child: Text(
-                        "or",
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ),
-                    Expanded(
-                      child: Divider(thickness: 1, color: Colors.grey[300]),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 10),
-
-                const SizedBox(height: 20),
-
-                // Sign Up Link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -227,14 +192,13 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // Form Submission Function
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
 
-      final response = await _authService.loginCustomer(email, password);
+      final response = await _authService.loginArtist(email, password);
 
       setState(() {
         _isLoading = false;
@@ -244,8 +208,7 @@ class _LoginPageState extends State<LoginPage> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['error'])));
       } else if (response.containsKey('message') && response['message'] == 'Validation done') {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Login successful!')));
-        // Navigate to the home screen or dashboard
-        Get.off(() => HomePage(userId: '',)); // Assuming you have a HomePage
+        Get.off(() => ArtistHomePage(userId: '',));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Login failed')));
       }

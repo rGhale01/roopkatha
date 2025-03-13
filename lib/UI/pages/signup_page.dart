@@ -239,13 +239,11 @@ class _SignupPageState extends State<SignupPage> {
         _isLoading = true;
       });
 
-      final response = await _authService.register(
+      final response = await _authService.registerCustomer(
         _fullNameController.text,
         _usernameController.text,
         _emailController.text,
         _passwordController.text,
-        _dobController.text,
-        _selectedGender!,
       );
 
       setState(() {

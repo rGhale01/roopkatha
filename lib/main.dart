@@ -6,7 +6,10 @@ import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:roopkatha/UI/pages/customer/home_page.dart';
 import 'package:roopkatha/UI/pages/login_page.dart';
+import 'package:roopkatha/UI/pages/signup_page.dart';
+import 'package:roopkatha/UI/pages/artist_signup_page.dart';
 import 'package:http/http.dart' as http;
+import 'UI/pages/welcome_page.dart';
 import 'UI/theme/colors.dart' as color;
 
 void main() async {
@@ -79,12 +82,12 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Gyansagar',
+      title: 'RoopKatha',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         fontFamily: GoogleFonts.lato().fontFamily,
       ),
-      home: isLoading ? HomePage(userId: '',) : const LoginPage(),
+      home: isLoading ? const CircularProgressIndicator() : (isLoggedIn ? HomePage(userId: '',) : const WelcomeScreen()),
     );
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'user_service.dart';
+import 'package:roopkatha/UI/pages/bottomtab.dart'; // Import the BottomTab widget
 
 void main() {
   runApp(MyApp());
@@ -28,25 +28,6 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
   @override
-  void initState() {
-    super.initState();
-    fetchUserName();
-  }
-
-  Future<void> fetchUserName() async {
-    final userName = await UserService().fetchUserName(widget.userId);
-    setState(() {
-      this.userName = userName;
-    });
-  }
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -54,36 +35,10 @@ class _HomePageState extends State<HomePage> {
         elevation: 0,
       ),
       body: _pages[_selectedIndex], // Display the selected page
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.camera_alt),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.image),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.photo_album),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: '',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.pinkAccent,
-        unselectedIconTheme: IconThemeData(color: Colors.black),
-        selectedIconTheme: IconThemeData(color: Colors.pinkAccent),
-        onTap: _onItemTapped,
-      ),
+      bottomNavigationBar: BottomTab(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
+      ), // Use the BottomTab widget
     );
   }
 
@@ -95,5 +50,11 @@ class _HomePageState extends State<HomePage> {
       Center(child: Text('Photo Album Page')),
       Center(child: Text('Profile Page')),
     ];
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 }
