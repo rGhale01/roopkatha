@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart'; // For Date Picker
-import 'auth_service.dart';
+import 'package:roopkatha/UI/pages/welcome_page.dart';
+import '../auth_service.dart';
 import 'login_page.dart';
 
 class SignupPage extends StatefulWidget {

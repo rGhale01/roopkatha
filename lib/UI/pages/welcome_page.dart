@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:roopkatha/UI/pages/signup_page.dart';
-import 'package:roopkatha/UI/pages/artist_signup_page.dart';
+import 'package:roopkatha/UI/pages/customer/signup_page.dart';
+import 'package:roopkatha/UI/pages/artist/artist_signup_page.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({Key? key}) : super(key: key);

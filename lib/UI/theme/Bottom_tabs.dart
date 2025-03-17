@@ -1,7 +1,7 @@
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
 // import 'package:roopkatha/UI/pages/customer/home_page.dart';
-// import 'package:roopkatha/UI/pages/booking_page.dart';
+// import 'package:roopkatha/UI/pages/booking_form.dart';
 // import 'package:roopkatha/UI/pages/chat_page.dart';
 // import 'package:roopkatha/UI/pages/customer/cus_profile_page.dart';
 // import 'package:roopkatha/UI/pages/search_page.dart';

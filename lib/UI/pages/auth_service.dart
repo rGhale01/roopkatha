@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class AuthService {
-  final String baseUrl = 'http://10.0.2.2:8000'; // Update with your machine's IP address for physical devices
+  final String baseUrl = 'http://10.0.2.2:8000';
 
   Future<Map<String, dynamic>> registerCustomer(
       String fullName, String username, String email, String password) async {
@@ -65,7 +65,7 @@ class AuthService {
       String name, String email, String password, String specialization,) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/ArtistRegister'), // Corrected endpoint
+        Uri.parse('$baseUrl/artist/ArtistRegister'), // Corrected endpoint
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -94,7 +94,7 @@ class AuthService {
   Future<Map<String, dynamic>> loginArtist(String email, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/ArtistLogin'),
+        Uri.parse('$baseUrl/artist/ArtistLogin'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
