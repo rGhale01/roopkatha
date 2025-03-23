@@ -7,7 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:roopkatha/UI/pages/customer/home_page.dart';
 import 'package:roopkatha/UI/pages/customer/login_page.dart';
 import 'package:roopkatha/UI/pages/customer/signup_page.dart';
-import 'package:roopkatha/UI/pages/artist/artist_signup_page.dart';
+import 'package:roopkatha/UI/pages/artist/Login/artist_signup_page.dart';
 import 'package:http/http.dart' as http;
 import 'UI/pages/welcome_page.dart';
 import 'UI/theme/colors.dart' as color;
@@ -19,7 +19,7 @@ void main() async {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   State<MyApp> createState() => _MyAppState();

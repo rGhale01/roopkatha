@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart'; // For Date Picker
-import 'package:roopkatha/UI/pages/welcome_page.dart';
-import '../auth_service.dart';
+import '../service/auth_service.dart';
 import 'login_page.dart';
 
 class SignupPage extends StatefulWidget {
-  const SignupPage({Key? key}) : super(key: key);
+  const SignupPage({super.key});
 
   @override
   _SignupPageState createState() => _SignupPageState();
@@ -177,7 +176,7 @@ class _SignupPageState extends State<SignupPage> {
                   children: <Widget>[
                     const Text("Do you have an account? "),
                     TextButton(
-                      onPressed: () => Get.to(() => const LoginPage()),
+                      onPressed: () => Get.to(() => const CustomerLoginPage()),
                       child: const Text(
                         "Sign In",
                         style: TextStyle(
@@ -226,11 +225,9 @@ class _SignupPageState extends State<SignupPage> {
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
     );
-    if (pickedDate != null) {
-      setState(() {
-        _dobController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
-      });
-    }
+    setState(() {
+      _dobController.text = DateFormat('yyyy-MM-dd').format(pickedDate!);
+    });
   }
 
   // Form Submission Function
@@ -256,7 +253,7 @@ class _SignupPageState extends State<SignupPage> {
       } else if (response.containsKey('message') && response['message'] == 'Customer Registered') {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Registration successful!')));
         // Navigate to the login screen
-        Get.off(() => const LoginPage());
+        Get.off(() => const CustomerLoginPage());
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Registration failed')));
       }

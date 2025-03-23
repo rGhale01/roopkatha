@@ -62,7 +62,7 @@ class AuthService {
   }
 
   Future<Map<String, dynamic>> registerArtist(
-      String name, String email, String password, String specialization,) async {
+      String name, String email, String password) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/artist/ArtistRegister'), // Corrected endpoint
@@ -73,7 +73,6 @@ class AuthService {
           'name': name,
           'email': email,
           'password': password,
-          'specialization': specialization,
         }),
       );
 

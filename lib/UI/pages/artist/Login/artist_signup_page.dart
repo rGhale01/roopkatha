@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:roopkatha/UI/pages/welcome_page.dart';
+import '../../service/auth_service.dart';
 import 'arrtist_login.dart';
-import '../auth_service.dart';
 
 class ArtistSignupPage extends StatefulWidget {
-  const ArtistSignupPage({Key? key}) : super(key: key);
+  const ArtistSignupPage({super.key});
 
   @override
   _ArtistSignupPage createState() => _ArtistSignupPage();
@@ -16,7 +15,6 @@ class _ArtistSignupPage extends State<ArtistSignupPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _specializationController = TextEditingController();
 
   bool _isLoading = false;
   final AuthService _authService = AuthService();
@@ -70,10 +68,6 @@ class _ArtistSignupPage extends State<ArtistSignupPage> {
                       _buildTextField(_emailController, "Email", Icons.email, keyboardType: TextInputType.emailAddress),
                       const SizedBox(height: 15),
                       _buildTextField(_passwordController, "Password", Icons.lock, obscureText: true),
-                      const SizedBox(height: 15),
-
-                      const SizedBox(height: 15),
-                      _buildTextField(_specializationController, "Specialization", Icons.work),
                       const SizedBox(height: 30),
                       SizedBox(
                         width: double.infinity,
@@ -100,7 +94,7 @@ class _ArtistSignupPage extends State<ArtistSignupPage> {
                   children: <Widget>[
                     const Text("Do you have an account? "),
                     TextButton(
-                      onPressed: () => Get.to(() => const WelcomeScreen()),
+                      onPressed: () => Get.to(() => const ArtistLoginPage()),
                       child: const Text("Sign In", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.pinkAccent)),
                     ),
                   ],
@@ -142,20 +136,17 @@ class _ArtistSignupPage extends State<ArtistSignupPage> {
         _nameController.text,
         _emailController.text,
         _passwordController.text,
-        _specializationController.text,
       );
 
       setState(() {
         _isLoading = false;
       });
 
-      if (response.containsKey('error')) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['error'])));
-      } else if (response.containsKey('message') && response['message'] == 'Artist Registered') {
+      if (response.containsKey('message') && response['message'] == 'Artist Registered') {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Registration successful!')));
         Get.off(() => const ArtistLoginPage());
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Registration failed')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['message'] ?? 'Registration failed')));
       }
     }
   }

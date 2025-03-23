@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:roopkatha/UI/pages/welcome_page.dart';
-import '../auth_service.dart';
-import 'signup_page.dart';
+import '../service/auth_service.dart';
 import 'home_page.dart'; // Assuming you have a HomePage
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class CustomerLoginPage extends StatefulWidget {
+  const CustomerLoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<CustomerLoginPage> createState() => _CustomerLoginPage();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _CustomerLoginPage extends State<CustomerLoginPage> {
   final _formKey = GlobalKey<FormState>();
   String email = "";
   String password = "";

@@ -1,21 +1,14 @@
 import 'package:flutter/material.dart';
-import '../../main_screen.dart';
-import '../bottomtab.dart';
+import 'package:roopkatha/UI/pages/customer/bottomtab.dart';
 
-class ProfilePage extends StatelessWidget {
+class CusProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Profile')),
-      body: Center(child: Text('Welcome to the Profile Page!')),
-      bottomNavigationBar: BottomTabs(
-        currentIndex: 4,
-        onItemTapped: (index) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => MainScreen(index: index)),
-          );
-        },
+      appBar: AppBar(title: const Text('Profile')),
+      body: const Center(child: Text('Welcome to the Profile Page!')),
+      bottomNavigationBar: CusBottomTabs(
+        currentIndex: 3,
       ),
     );
   }

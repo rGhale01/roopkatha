@@ -1,36 +1,58 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:roopkatha/UI/pages/artist/booking_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'select_availiability.dart';
 
 class Artist {
   final String name;
   final String profilePictureUrl;
-  final List<String> specializations;
 
   Artist({
     required this.name,
     required this.profilePictureUrl,
-    required this.specializations,
   });
 
   factory Artist.fromJson(Map<String, dynamic> json) {
     return Artist(
       name: json['name'],
-      profilePictureUrl: json['profilePictureUrl'],
-      specializations: List<String>.from(json['specializations']),
+      profilePictureUrl: json['profilePictureUrl'] ?? 'https://via.placeholder.com/150', // Ensure the default profile picture URL is valid
     );
   }
 }
+
+class Service {
+  final String id;
+  final String name;
+  final String description;
+  final double price;
+  final int duration;
+
+  Service({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.price,
+    required this.duration,
+  });
+
+  factory Service.fromJson(Map<String, dynamic> json) {
+    return Service(
+      id: json['_id'],
+      name: json['name'],
+      description: json['description'],
+      price: json['price'].toDouble(),
+      duration: json['duration'],
+    );
+  }
+}
+
 class ServiceSelectionPage extends StatelessWidget {
   final String artistId;
   final String artistName;
 
-
-
-  const ServiceSelectionPage({Key? key, required this.artistId, required this.artistName}) : super(key: key);
+  const ServiceSelectionPage({super.key, required this.artistId, required this.artistName});
 
   @override
   Widget build(BuildContext context) {
@@ -41,12 +63,11 @@ class ServiceSelectionPage extends StatelessWidget {
   }
 }
 
-
 class ServiceSelectionWidget extends StatefulWidget {
   final String artistId;
   final String artistName;
 
-  const ServiceSelectionWidget({Key? key, required this.artistId, required this.artistName}) : super(key: key);
+  const ServiceSelectionWidget({super.key, required this.artistId, required this.artistName});
 
   @override
   _ServiceSelectionWidgetState createState() => _ServiceSelectionWidgetState();
@@ -54,15 +75,17 @@ class ServiceSelectionWidget extends StatefulWidget {
 
 class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
   late Future<Artist> artist;
+  late Future<List<Service>> services;
 
   @override
   void initState() {
     super.initState();
     artist = fetchArtist(widget.artistId);
+    services = fetchServices(widget.artistId);
   }
 
   Future<Artist> fetchArtist(String artistId) async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:8000/artist/artists/$artistId'));
+    final response = await http.get(Uri.parse('http://10.0.2.2:8000/artist/' + artistId));
     if (response.statusCode == 200) {
       return Artist.fromJson(jsonDecode(response.body));
     } else {
@@ -70,12 +93,34 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
     }
   }
 
-  void _onNextButtonPressed() {
-    // Navigate to the Booking Page
+  Future<List<Service>> fetchServices(String artistId) async {
+    final response = await http.get(Uri.parse('http://10.0.2.2:8000/service/artist/' + artistId));
+    if (response.statusCode == 200) {
+      List<dynamic> body = jsonDecode(response.body);
+      return body.map((json) => Service.fromJson(json)).toList();
+    } else {
+      // Log the response body and status code for debugging
+      print('Failed to load services. Status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      throw Exception('Failed to load services');
+    }
+  }
+
+  void _onServiceSelected(String serviceId, String serviceName) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => BookingPage()),
+      MaterialPageRoute(
+        builder: (context) => SelectAvailability(
+          serviceId: serviceId,
+          serviceName: serviceName,
+        ),
+      ),
     );
+  }
+
+  void _onNextButtonPressed() {
+    // Placeholder for the next button action.
+    // For example, you could navigate to a different page or perform some action.
   }
 
   @override
@@ -88,7 +133,7 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (snapshot.hasData) {
-          return Container(
+          return SizedBox(
             width: 393,
             height: 852,
             child: Stack(
@@ -123,10 +168,16 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
                                 bottomLeft: Radius.circular(42),
                                 bottomRight: Radius.circular(42),
                               ),
-                              image: DecorationImage(
-                                image: NetworkImage(snapshot.data!.profilePictureUrl),
-                                fit: BoxFit.fitWidth,
-                              ),
+                            ),
+                            child: Image.network(
+                              snapshot.data!.profilePictureUrl,
+                              fit: BoxFit.fitWidth,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                  'assets/logo.png',
+                                  fit: BoxFit.fitWidth,
+                                );
+                              },
                             ),
                           ),
                         ),
@@ -144,7 +195,7 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
                         Positioned(
                           top: 120,
                           left: 324,
-                          child: Container(
+                          child: SizedBox(
                             width: 37,
                             height: 37,
                             child: Stack(
@@ -222,14 +273,34 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
                           top: 450,
                           left: 20,
                           right: 20,
-                          child: Column(
-                            children: snapshot.data!.specializations.map((service) {
-                              return Card(
-                                child: ListTile(
-                                  title: Text(service),
-                                ),
-                              );
-                            }).toList(),
+                          child: FutureBuilder<List<Service>>(
+                            future: services,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return Center(child: CircularProgressIndicator());
+                              } else if (snapshot.hasError) {
+                                return Center(child: Text('Error: ${snapshot.error}'));
+                              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                                return Center(child: Text('No services available'));
+                              } else {
+                                return ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: snapshot.data!.length,
+                                  itemBuilder: (context, index) {
+                                    final service = snapshot.data![index];
+                                    return Card(
+                                      child: ListTile(
+                                        title: Text(service.name),
+                                        subtitle: Text('${service.description}\nPrice: ${service.price}\nDuration: ${service.duration} min'),
+                                        onTap: () {
+                                          _onServiceSelected(service.id, service.name);
+                                        },
+                                      ),
+                                    );
+                                  },
+                                );
+                              }
+                            },
                           ),
                         ),
                         Positioned(
@@ -237,7 +308,7 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
                           left: 46,
                           child: GestureDetector(
                             onTap: _onNextButtonPressed,
-                            child: Container(
+                            child: SizedBox(
                               width: 300.29229736328125,
                               height: 50,
                               child: Stack(
@@ -306,4 +377,3 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
     );
   }
 }
-

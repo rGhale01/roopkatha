@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:roopkatha/UI/pages/artist/Login/arrtist_login.dart';
+import 'package:roopkatha/UI/pages/customer/login_page.dart';
 import 'package:roopkatha/UI/pages/customer/signup_page.dart';
-import 'package:roopkatha/UI/pages/artist/artist_signup_page.dart';
+import 'package:roopkatha/UI/pages/artist/Login/artist_signup_page.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({Key? key}) : super(key: key);
@@ -54,7 +56,7 @@ class WelcomeScreen extends StatelessWidget {
                           minimumSize: const Size(double.infinity, 50),
                         ),
                         onPressed: () {
-                          Get.to(() => SignupPage());
+                          Get.to(() => CustomerLoginPage());
                         },
                         child: const Text("I am Customer",
                             style: TextStyle(fontSize: 18, color: Colors.white)),
@@ -67,7 +69,7 @@ class WelcomeScreen extends StatelessWidget {
                           side: const BorderSide(color: Colors.white),
                         ),
                         onPressed: () {
-                          Get.to(() => ArtistSignupPage());
+                          Get.to(() => ArtistLoginPage());
                         },
                         child: const Text("I am Artist",
                             style: TextStyle(fontSize: 18, color: Colors.white)),
