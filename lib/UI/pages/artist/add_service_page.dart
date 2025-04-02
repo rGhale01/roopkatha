@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:roopkatha/UI/pages/artist/artist_shared_preferences.dart';
 
 class AddService extends StatefulWidget {
+  const AddService({super.key});
+
   @override
   _AddServiceState createState() => _AddServiceState();
 }
@@ -34,13 +36,6 @@ class _AddServiceState extends State<AddService> {
       setState(() {
         _isLoading = true;
       });
-
-      print('Submitting form with data:');
-      print('Artist ID: $_artistID');
-      print('Name: ${_nameController.text}');
-      print('Description: ${_descriptionController.text}');
-      print('Price: ${_priceController.text}');
-      print('Duration: ${_durationController.text}');
 
       try {
         final response = await http.post(

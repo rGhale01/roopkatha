@@ -169,7 +169,7 @@ class _ArtistLoginPageState extends State<ArtistLoginPage> {
                     const SizedBox(width: 5),
                     GestureDetector(
                       onTap: () {
-                        Get.to(() =>  ArtistSignupPage());
+                        Get.to(() => ArtistSignupPage());
                       },
                       child: const Text(
                         "Sign up",
@@ -203,16 +203,27 @@ class _ArtistLoginPageState extends State<ArtistLoginPage> {
       });
 
       if (response.containsKey('error')) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['error'])));
-      } else if (response.containsKey('message') && response['message'] == 'Validation done') {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Login successful!')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(response['error'])));
+      } else if (response.containsKey('artist')) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Login successful!')));
 
-        // Store the artist ID in SharedPreferences
-        await ArtistSharedPreferences.setArtistID(response['id']);
+        // Store the artist ID and auth token in SharedPreferences, handling potential null values
+        String artistID = response['artist']['_id'] ?? '';
+        String? authToken = response['artist']['token'];
 
+        await ArtistSharedPreferences.setArtistID(artistID);
+        if (authToken != null) {
+          await ArtistSharedPreferences.setAuthToken(authToken);
+        }
+
+        // Debugging lines to ensure redirection logic is reached
+        print('Redirecting to ArtistHomePage...');
         Get.offAll(() => ArtistHomePage());
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Login failed')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Login failed')));
       }
     }
   }

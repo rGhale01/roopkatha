@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class BookingPage extends StatefulWidget {
+  const BookingPage({super.key});
+
   @override
   _BookingPageState createState() => _BookingPageState();
 }

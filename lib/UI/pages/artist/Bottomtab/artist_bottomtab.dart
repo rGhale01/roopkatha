@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:roopkatha/UI/pages/artist/add_service_page.dart';
 import 'package:roopkatha/UI/pages/artist/Bottomtab/artist_chat.dart';
 import 'package:roopkatha/UI/pages/artist/Bottomtab/artist_profile.dart';
 import 'package:roopkatha/UI/pages/artist/Bottomtab/home_page.dart';
@@ -31,7 +30,7 @@ const IconData explore = IconData(0xe248, fontFamily: 'MaterialIcons');
 
 class ArtistBottomtab extends StatefulWidget {
   int currentIndex;
-  ArtistBottomtab({Key? key, required this.currentIndex}) : super(key: key);
+  ArtistBottomtab({super.key, required this.currentIndex});
 
   @override
   State<ArtistBottomtab> createState() =>_ArtistBottomtab();

@@ -3,7 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'select_availiability.dart';
+
+import 'package:roopkatha/UI/pages/artist/select_availiability.dart';
 
 class Artist {
   final String name;
@@ -17,7 +18,7 @@ class Artist {
   factory Artist.fromJson(Map<String, dynamic> json) {
     return Artist(
       name: json['name'],
-      profilePictureUrl: json['profilePictureUrl'] ?? 'https://via.placeholder.com/150', // Ensure the default profile picture URL is valid
+      profilePictureUrl: json['profilePictureUrl'] ?? 'https://via.placeholder.com/150',
     );
   }
 }
@@ -76,6 +77,9 @@ class ServiceSelectionWidget extends StatefulWidget {
 class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
   late Future<Artist> artist;
   late Future<List<Service>> services;
+  String? selectedServiceId;
+  String? selectedServiceName;
+  double? selectedServicePrice;
 
   @override
   void initState() {
@@ -85,7 +89,7 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
   }
 
   Future<Artist> fetchArtist(String artistId) async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:8000/artist/' + artistId));
+    final response = await http.get(Uri.parse('http://10.0.2.2:8000/artists/$artistId'));
     if (response.statusCode == 200) {
       return Artist.fromJson(jsonDecode(response.body));
     } else {
@@ -94,33 +98,40 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
   }
 
   Future<List<Service>> fetchServices(String artistId) async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:8000/service/artist/' + artistId));
+    final response = await http.get(Uri.parse('http://10.0.2.2:8000/service/artist/$artistId'));
     if (response.statusCode == 200) {
       List<dynamic> body = jsonDecode(response.body);
       return body.map((json) => Service.fromJson(json)).toList();
     } else {
-      // Log the response body and status code for debugging
-      print('Failed to load services. Status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
       throw Exception('Failed to load services');
     }
   }
 
-  void _onServiceSelected(String serviceId, String serviceName) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SelectAvailability(
-          serviceId: serviceId,
-          serviceName: serviceName,
-        ),
-      ),
-    );
+  void _onServiceSelected(String serviceId, String serviceName, double servicePrice) {
+    setState(() {
+      selectedServiceId = serviceId;
+      selectedServiceName = serviceName;
+      selectedServicePrice = servicePrice;
+    });
   }
 
   void _onNextButtonPressed() {
-    // Placeholder for the next button action.
-    // For example, you could navigate to a different page or perform some action.
+    if (selectedServiceId != null && selectedServiceName != null && selectedServicePrice != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SelectAvailability(
+            serviceId: selectedServiceId!,
+            serviceName: selectedServiceName!,
+            servicePrice: selectedServicePrice!, artistId: '', artistService: '', customerId: '',
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select a service before proceeding.')),
+      );
+    }
   }
 
   @override
@@ -289,11 +300,12 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
                                   itemBuilder: (context, index) {
                                     final service = snapshot.data![index];
                                     return Card(
+                                      color: selectedServiceId == service.id ? Colors.grey[300] : Colors.white,
                                       child: ListTile(
                                         title: Text(service.name),
                                         subtitle: Text('${service.description}\nPrice: ${service.price}\nDuration: ${service.duration} min'),
                                         onTap: () {
-                                          _onServiceSelected(service.id, service.name);
+                                          _onServiceSelected(service.id, service.name, service.price);
                                         },
                                       ),
                                     );

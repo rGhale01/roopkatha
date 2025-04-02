@@ -8,6 +8,8 @@ import '../add_service_page.dart';
 import '../artist_shared_preferences.dart';
 
 class ServicePage extends StatefulWidget {
+  const ServicePage({super.key});
+
   @override
   _ServicePageState createState() => _ServicePageState();
 }

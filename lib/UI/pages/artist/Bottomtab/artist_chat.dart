@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:roopkatha/UI/pages/artist/Bottomtab/artist_bottomtab.dart';
-import 'package:roopkatha/UI/pages/customer/bottomtab.dart';
 
 class ArtistChat extends StatefulWidget {
   const ArtistChat({super.key});

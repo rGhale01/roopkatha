@@ -48,7 +48,7 @@ class _CusHomePageState extends State<CusHomePage> {
 
   Future<void> fetchArtists() async {
     final String baseUrl = 'http://10.0.2.2:8000'; // Adjust the base URL as needed
-    final String url = '$baseUrl/artist/all';
+    final String url = '$baseUrl/artists/all';
 
     try {
       final response = await http.get(Uri.parse(url));

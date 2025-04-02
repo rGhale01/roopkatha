@@ -6,6 +6,8 @@ import '../artist/artist_details.dart';
 import 'bottomtab.dart';
 
 class ExplorePage extends StatefulWidget {
+  const ExplorePage({super.key});
+
   @override
   _ExplorePageState createState() => _ExplorePageState();
 }
@@ -24,7 +26,7 @@ class _ExplorePageState extends State<ExplorePage> {
 
   Future<void> fetchArtists() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/artist/all'));
+      final response = await http.get(Uri.parse('$baseUrl/artists/all'));
       if (response.statusCode == 200) {
         setState(() {
           artists = json.decode(response.body)['artists'];
@@ -57,12 +59,12 @@ class _ExplorePageState extends State<ExplorePage> {
     dummySearchList.addAll(artists);
     if (query.isNotEmpty) {
       List<dynamic> dummyListData = [];
-      dummySearchList.forEach((item) {
+      for (var item in dummySearchList) {
         if (item['name'].toString().toLowerCase().contains(query.toLowerCase()) ||
             item['profession'].toString().toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
         }
-      });
+      }
       setState(() {
         filteredArtists = dummyListData;
       });

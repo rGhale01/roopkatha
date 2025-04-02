@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:roopkatha/UI/pages/artist/Bottomtab/artist_bottomtab.dart';
 
 class ArtistHomePage extends StatelessWidget {
+  const ArtistHomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

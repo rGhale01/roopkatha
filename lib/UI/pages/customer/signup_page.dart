@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart'; // For Date Picker
+import 'package:roopkatha/UI/pages/customer/login_page.dart';
 import '../service/auth_service.dart';
-import 'login_page.dart';
+import 'CusVerifyOTP.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -15,7 +16,6 @@ class _SignupPageState extends State<SignupPage> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _fullNameController = TextEditingController();
-  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
@@ -93,8 +93,6 @@ class _SignupPageState extends State<SignupPage> {
                     children: <Widget>[
                       _buildTextField(_fullNameController, "Full Name", Icons.person),
                       const SizedBox(height: 15),
-                      _buildTextField(_usernameController, "Username", Icons.account_circle),
-                      const SizedBox(height: 15),
                       _buildTextField(_emailController, "Email", Icons.email, keyboardType: TextInputType.emailAddress),
                       const SizedBox(height: 15),
                       _buildTextField(_passwordController, "Password", Icons.lock, obscureText: true),
@@ -144,7 +142,7 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                       const SizedBox(height: 30),
 
-                      // "Next" Button
+                      // "Submit" Button
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
@@ -239,7 +237,6 @@ class _SignupPageState extends State<SignupPage> {
 
       final response = await _authService.registerCustomer(
         _fullNameController.text,
-        _usernameController.text,
         _emailController.text,
         _passwordController.text,
       );
@@ -250,10 +247,12 @@ class _SignupPageState extends State<SignupPage> {
 
       if (response.containsKey('error')) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['error'])));
-      } else if (response.containsKey('message') && response['message'] == 'Customer Registered') {
+      } else if (response.containsKey('message') && response['message'] == 'Customer registered successfully!') {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Registration successful!')));
-        // Navigate to the login screen
-        Get.off(() => const CustomerLoginPage());
+        Get.to(() => VerifyOtpCustomerScreen(onSuccess: () {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('OTP Verified!')));
+          Get.off(() => const CustomerLoginPage());
+        }), arguments: {'email': _emailController.text});
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Registration failed')));
       }

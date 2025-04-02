@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:roopkatha/UI/pages/welcome_page.dart';
+import 'package:roopkatha/UI/pages/customer/signup_page.dart';
 import '../service/auth_service.dart';
 import 'home_page.dart'; // Assuming you have a HomePage
 
@@ -8,10 +8,10 @@ class CustomerLoginPage extends StatefulWidget {
   const CustomerLoginPage({super.key});
 
   @override
-  State<CustomerLoginPage> createState() => _CustomerLoginPage();
+  State<CustomerLoginPage> createState() => _CustomerLoginPageState();
 }
 
-class _CustomerLoginPage extends State<CustomerLoginPage> {
+class _CustomerLoginPageState extends State<CustomerLoginPage> {
   final _formKey = GlobalKey<FormState>();
   String email = "";
   String password = "";
@@ -206,7 +206,7 @@ class _CustomerLoginPage extends State<CustomerLoginPage> {
                     const SizedBox(width: 5),
                     GestureDetector(
                       onTap: () {
-                        Get.to(() => const WelcomeScreen());
+                        Get.to(() => SignupPage());
                       },
                       child: const Text(
                         "Sign up",
@@ -242,10 +242,9 @@ class _CustomerLoginPage extends State<CustomerLoginPage> {
 
       if (response.containsKey('error')) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['error'])));
-      } else if (response.containsKey('message') && response['message'] == 'Validation done') {
+      } else if (response.containsKey('customer')) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Login successful!')));
-        // Navigate to the home screen or dashboard
-        Get.off(() => CusHomePage()); // Assuming you have a HomePage
+        Get.off(() => CusHomePage()); // Assuming you have a CusHomePage
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Login failed')));
       }

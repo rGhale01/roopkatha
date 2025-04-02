@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:roopkatha/UI/pages/artist/artist_shared_preferences.dart';
 
 class AddAvailability extends StatefulWidget {
+  const AddAvailability({super.key});
+
   @override
   _AddAvailabilityState createState() => _AddAvailabilityState();
 }
@@ -104,8 +106,8 @@ class _AddAvailabilityState extends State<AddAvailability> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
               style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+              child: Text('Cancel'),
             ),
           ],
         );
@@ -142,8 +144,8 @@ class _AddAvailabilityState extends State<AddAvailability> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
               style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+              child: Text('Cancel'),
             ),
           ],
         );
@@ -274,8 +276,8 @@ class _AddAvailabilityState extends State<AddAvailability> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Close'),
               style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+              child: Text('Close'),
             ),
           ],
         );
@@ -312,8 +314,8 @@ class _AddAvailabilityState extends State<AddAvailability> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
               style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+              child: Text('Cancel'),
             ),
           ],
         );

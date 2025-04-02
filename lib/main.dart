@@ -1,93 +1,46 @@
-import 'dart:async';
-import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:roopkatha/UI/pages/customer/home_page.dart';
-import 'package:roopkatha/UI/pages/customer/login_page.dart';
-import 'package:roopkatha/UI/pages/customer/signup_page.dart';
-import 'package:roopkatha/UI/pages/artist/Login/artist_signup_page.dart';
-import 'package:http/http.dart' as http;
-import 'UI/pages/welcome_page.dart';
-import 'UI/theme/colors.dart' as color;
+import 'package:flutter/material.dart'; // Flutter UI framework
+import 'package:get/get.dart'; // State management and navigation
+import 'package:google_fonts/google_fonts.dart'; // Custom Google Fonts
+import 'package:khalti_flutter/khalti_flutter.dart'; // Khalti payment integration
+import 'package:flutter_localizations/flutter_localizations.dart'; // Flutter localization
+// Customer home page
+import 'package:roopkatha/UI/pages/welcome_page.dart'; // Welcome page
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await GetStorage.init();
-  runApp(const MyApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized(); // Ensures Flutter bindings are initialized before running the app
+  runApp(const MyApp()); // Run the app
 }
 
-class MyApp extends StatefulWidget {
+// Main Application widget
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  Timer? timer;
-  bool isLoading = false;
-  bool isLoggedIn = false;
-
-  get box => null;
-
-  @override
-  void initState() {
-    super.initState();
-    checkLoginStatus();
-    timer = Timer.periodic(
-        const Duration(minutes: 5), (Timer t) => refreshToken());
-  }
-
-  Future<void> checkLoginStatus() async {
-    if (box.read("token") != null) {
-      await refreshToken();
-      setState(() {
-        isLoggedIn = true;
-      });
-    }
-    setState(() {
-      isLoading = true;
-    });
-  }
-
-  Future<void> refreshToken() async {
-    if (box.read("token") == null) return;
-
-    const url = "http://10.0.2.2:8000/api/refresh";
-    final response = await http.post(
-      Uri.parse(url),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        "refresh_token": box.read("token")["refresh_token"],
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      final decodeToken = jsonDecode(response.body);
-      box.write("token", decodeToken);
-      setState(() {
-        isLoggedIn = true;
-      });
-    } else {
-      setState(() {
-        isLoggedIn = false;
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: 'RoopKatha',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        fontFamily: GoogleFonts.lato().fontFamily,
-      ),
-      home: isLoading ? const CircularProgressIndicator() : (isLoggedIn ? CusHomePage() : const WelcomeScreen()),
+    return KhaltiScope( // Wrap app with Khalti payment scope
+      publicKey: '690968f6fa104a4888d7a3f9212fad6f', // Replace with actual Khalti public key
+      enabledDebugging: false, // Disable debugging in production
+      builder: (context, navigatorKey) {
+        return GetMaterialApp( // Use GetMaterialApp for navigation and state management
+          navigatorKey: navigatorKey, // Assign Khalti navigator key
+          title: 'RoopKatha', // App title
+          theme: ThemeData(
+            primarySwatch: Colors.blue, // Set primary theme color
+            fontFamily: GoogleFonts.lato().fontFamily, // Apply Google Fonts
+          ),
+          localizationsDelegates: [
+            KhaltiLocalizations.delegate, // Add Khalti localization
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en', 'US'),
+            Locale('ne', 'NP'), // Support for Nepali language
+          ],
+          home: const WelcomeScreen(), // Default to welcome screen
+        );
+      },
     );
   }
 }

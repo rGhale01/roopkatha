@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:roopkatha/UI/pages/artist/Login/arrtist_login.dart';
 import 'package:roopkatha/UI/pages/customer/login_page.dart';
-import 'package:roopkatha/UI/pages/customer/signup_page.dart';
-import 'package:roopkatha/UI/pages/artist/Login/artist_signup_page.dart';
 
 class WelcomeScreen extends StatelessWidget {
-  const WelcomeScreen({Key? key}) : super(key: key);
+  const WelcomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

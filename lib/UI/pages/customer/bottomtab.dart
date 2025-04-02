@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:roopkatha/UI/pages/customer/booking_page.dart';
 import 'package:roopkatha/UI/pages/customer/cus_chat_page.dart';
 import 'package:roopkatha/UI/pages/customer/cus_profile_page.dart';
-import 'cus_booking.dart';
 import 'explore_page.dart';
 import 'home_page.dart';
 
@@ -30,7 +29,7 @@ const IconData explore = IconData(0xe248, fontFamily: 'MaterialIcons');
 
 class CusBottomTabs extends StatefulWidget {
   int currentIndex;
-  CusBottomTabs({Key? key, required this.currentIndex}) : super(key: key);
+  CusBottomTabs({super.key, required this.currentIndex});
 
   @override
   State<CusBottomTabs> createState() => _CusBottomTabsState();
@@ -65,7 +64,7 @@ class _CusBottomTabsState extends State<CusBottomTabs> {
           break;
         case 2:
           Get.to(
-            CusBookingPage(),
+            BookingPage(),
             transition: Transition.rightToLeftWithFade,
             duration: const Duration(seconds: 1),
           );
@@ -79,7 +78,7 @@ class _CusBottomTabsState extends State<CusBottomTabs> {
           break;
         case 4:
           Get.to(
-            CusProfilePage(),
+            CustomerProfile(),
             transition: Transition.rightToLeftWithFade,
             duration: const Duration(seconds: 1),
           );

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:roopkatha/UI/pages/artist/Login/verifyOTP.dart';
 import '../../service/auth_service.dart';
-import 'arrtist_login.dart';
+import 'package:roopkatha/UI/pages/artist/Login/arrtist_login.dart';
 
 class ArtistSignupPage extends StatefulWidget {
   const ArtistSignupPage({super.key});
@@ -142,9 +143,12 @@ class _ArtistSignupPage extends State<ArtistSignupPage> {
         _isLoading = false;
       });
 
-      if (response.containsKey('message') && response['message'] == 'Artist Registered') {
+      if (response.containsKey('message') && response['message'] == 'Artist registered successfully!') {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Registration successful!')));
-        Get.off(() => const ArtistLoginPage());
+        Get.to(() => VerifyOtpScreen(onSuccess: () {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('OTP Verified!')));
+          Get.off(() => const ArtistLoginPage());
+        }), arguments: {'email': _emailController.text});
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['message'] ?? 'Registration failed')));
       }
