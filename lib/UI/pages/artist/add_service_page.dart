@@ -39,7 +39,7 @@ class _AddServiceState extends State<AddService> {
 
       try {
         final response = await http.post(
-          Uri.parse('http://10.0.2.2:8000/service/create'),
+          Uri.parse('http://10.0.2.2:8000/api/service/create'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },

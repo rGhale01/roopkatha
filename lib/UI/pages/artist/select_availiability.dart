@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../customer/customer_shared_preferences.dart';
 import 'availability.dart';
 import 'checkout_page.dart';
 
@@ -10,8 +11,7 @@ class SelectAvailability extends StatefulWidget {
   final String serviceName;
   final double servicePrice;
   final String artistId;
-  final String artistService; // Add artistService parameter
-  final String customerId;
+  final String artistService;
 
   const SelectAvailability({
     super.key,
@@ -19,8 +19,7 @@ class SelectAvailability extends StatefulWidget {
     required this.serviceName,
     required this.servicePrice,
     required this.artistId,
-    required this.artistService, // Add artistService parameter
-    required this.customerId,
+    required this.artistService,
   });
 
   @override
@@ -46,15 +45,26 @@ class _SelectAvailabilityState extends State<SelectAvailability> {
     });
 
     try {
-      final dateStr = _selectedDay.toIso8601String().split('T').first; // Format date as YYYY-MM-DD
-      final response = await http.get(Uri.parse('http://10.0.2.2:8000/availability/service/${widget.serviceId}?date=$dateStr'));
+      final dateStr = _selectedDay.toIso8601String().split('T').first;
+      final response = await http.get(Uri.parse('http://10.0.2.2:8000/api/availability/service/${widget.serviceId}?date=$dateStr'));
 
       if (response.statusCode == 200) {
-        List<dynamic> body = jsonDecode(response.body);
-        List<Availability> availabilityList = body.map((json) => Availability.fromJson(json)).toList();
-        setState(() {
-          _selectedDayAvailability = availabilityList;
-        });
+        var body = jsonDecode(response.body);
+        if (body is List) {
+          List<Availability> availabilityList = body.map((json) => Availability.fromJson(json)).toList();
+          setState(() {
+            _selectedDayAvailability = availabilityList;
+          });
+        } else if (body is Map && body.containsKey('availability')) {
+          List<Availability> availabilityList = (body['availability'] as List).map((json) => Availability.fromJson(json)).toList();
+          setState(() {
+            _selectedDayAvailability = availabilityList;
+          });
+        } else {
+          setState(() {
+            _errorMessage = 'Unexpected response format';
+          });
+        }
       } else {
         setState(() {
           _errorMessage = 'Failed to load availability: ${response.reasonPhrase}';
@@ -71,21 +81,41 @@ class _SelectAvailabilityState extends State<SelectAvailability> {
     });
   }
 
-  void _onAvailabilitySelected(Availability availability) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CheckoutPage(
-          availability: availability,
-          serviceId: widget.serviceId,
-          serviceName: widget.serviceName,
-          serviceCharge: widget.servicePrice,
-          artistId: widget.artistId, // Pass artistId
-          artistService: widget.artistService, // Pass artistService
-          customerId: widget.customerId, // Pass customerId
+  void _onAvailabilitySelected(Availability availability) async {
+    String? customerId = await CustomerSharedPreferences.getCustomerID();
+    if (customerId == null || customerId.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Booking Failed"),
+            content: const Text("Customer ID cannot be empty."),
+            actions: [
+              SimpleDialogOption(
+                child: const Text("OK"),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CheckoutPage(
+            availability: availability,
+            serviceId: widget.serviceId,
+            serviceName: widget.serviceName,
+            serviceCharge: widget.servicePrice,
+            artistId: widget.artistId,
+            artistService: widget.artistService,
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   @override

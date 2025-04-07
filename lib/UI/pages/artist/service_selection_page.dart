@@ -3,8 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import 'package:roopkatha/UI/pages/artist/select_availiability.dart';
+import '../customer/customer_shared_preferences.dart'; // Import the shared preferences class
 
 class Artist {
   final String name;
@@ -89,7 +89,7 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
   }
 
   Future<Artist> fetchArtist(String artistId) async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:8000/artists/$artistId'));
+    final response = await http.get(Uri.parse('http://10.0.2.2:8000/api/artist/$artistId'));
     if (response.statusCode == 200) {
       return Artist.fromJson(jsonDecode(response.body));
     } else {
@@ -98,7 +98,7 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
   }
 
   Future<List<Service>> fetchServices(String artistId) async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:8000/service/artist/$artistId'));
+    final response = await http.get(Uri.parse('http://10.0.2.2:8000/api/service/artist/$artistId'));
     if (response.statusCode == 200) {
       List<dynamic> body = jsonDecode(response.body);
       return body.map((json) => Service.fromJson(json)).toList();
@@ -115,18 +115,41 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
     });
   }
 
-  void _onNextButtonPressed() {
+  void _onNextButtonPressed() async {
     if (selectedServiceId != null && selectedServiceName != null && selectedServicePrice != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SelectAvailability(
-            serviceId: selectedServiceId!,
-            serviceName: selectedServiceName!,
-            servicePrice: selectedServicePrice!, artistId: '', artistService: '', customerId: '',
+      String? customerId = await CustomerSharedPreferences.getCustomerID();
+      if (customerId == null || customerId.isEmpty) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text("Booking Failed"),
+              content: const Text("Customer ID cannot be empty."),
+              actions: [
+                SimpleDialogOption(
+                  child: const Text("OK"),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SelectAvailability(
+              serviceId: selectedServiceId!,
+              serviceName: selectedServiceName!,
+              servicePrice: selectedServicePrice!,
+              artistId: widget.artistId,
+              artistService: widget.artistName,
+            ),
           ),
-        ),
-      );
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please select a service before proceeding.')),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart'; // For Date Picker
 import 'package:roopkatha/UI/pages/customer/login_page.dart';
 import '../service/auth_service.dart';
 import 'CusVerifyOTP.dart';
@@ -18,9 +17,8 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _dobController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController(); // <-- New phone number controller
 
-  String? _selectedGender;
   bool _isLoading = false;
   final AuthService _authService = AuthService();
 
@@ -97,49 +95,7 @@ class _SignupPageState extends State<SignupPage> {
                       const SizedBox(height: 15),
                       _buildTextField(_passwordController, "Password", Icons.lock, obscureText: true),
                       const SizedBox(height: 15),
-
-                      // Date of Birth Field
-                      TextFormField(
-                        controller: _dobController,
-                        readOnly: true,
-                        onTap: _pickDate,
-                        decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.calendar_today),
-                          hintText: "Date of Birth",
-                          filled: true,
-                          fillColor: Colors.grey[200],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        validator: (value) => value!.isEmpty ? 'Select your date of birth' : null,
-                      ),
-                      const SizedBox(height: 15),
-
-                      // Gender Dropdown
-                      DropdownButtonFormField<String>(
-                        value: _selectedGender,
-                        decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.transgender),
-                          filled: true,
-                          fillColor: Colors.grey[200],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        hint: const Text("Gender"),
-                        items: ["Male", "Female", "Other"].map((String gender) {
-                          return DropdownMenuItem(value: gender, child: Text(gender));
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedGender = value;
-                          });
-                        },
-                        validator: (value) => value == null ? "Select your gender" : null,
-                      ),
+                      _buildTextField(_phoneController, "Phone Number", Icons.phone, keyboardType: TextInputType.phone),
                       const SizedBox(height: 30),
 
                       // "Submit" Button
@@ -151,40 +107,40 @@ class _SignupPageState extends State<SignupPage> {
                             backgroundColor: Colors.pinkAccent,
                             padding: const EdgeInsets.symmetric(vertical: 15),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
+                              borderRadius: BorderRadius.circular(10),
                             ),
                           ),
                           child: _isLoading
                               ? const CircularProgressIndicator(color: Colors.white)
                               : const Text(
-                            "Submit",
-                            style: TextStyle(fontSize: 18, color: Colors.white),
+                            "Sign Up",
+                            style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
                         ),
                       ),
+                      const SizedBox(height: 15),
+
+                      // "Already have an account?" Text
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("Already have an account? "),
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => const CustomerLoginPage());
+                            },
+                            child: const Text(
+                              "Login",
+                              style: TextStyle(
+                                color: Colors.pinkAccent,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // Login Redirect
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    const Text("Do you have an account? "),
-                    TextButton(
-                      onPressed: () => Get.to(() => const CustomerLoginPage()),
-                      child: const Text(
-                        "Sign In",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.pinkAccent,
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),
@@ -194,16 +150,14 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  // Helper method for building text fields
-  Widget _buildTextField(TextEditingController controller, String hint, IconData icon,
-      {bool obscureText = false, TextInputType keyboardType = TextInputType.text}) {
+  Widget _buildTextField(TextEditingController controller, String hintText, IconData icon, {bool obscureText = false, TextInputType keyboardType = TextInputType.text}) {
     return TextFormField(
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
       decoration: InputDecoration(
         prefixIcon: Icon(icon),
-        hintText: hint,
+        hintText: hintText,
         filled: true,
         fillColor: Colors.grey[200],
         border: OutlineInputBorder(
@@ -211,24 +165,11 @@ class _SignupPageState extends State<SignupPage> {
           borderSide: BorderSide.none,
         ),
       ),
-      validator: (value) => value!.isEmpty ? 'Please enter your $hint' : null,
+      validator: (value) => value!.isEmpty ? 'Enter your $hintText' : null,
     );
   }
 
-  // Date Picker Function
-  Future<void> _pickDate() async {
-    DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-    setState(() {
-      _dobController.text = DateFormat('yyyy-MM-dd').format(pickedDate!);
-    });
-  }
-
-  // Form Submission Function
+// Form Submission Function
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       setState(() {

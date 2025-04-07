@@ -26,7 +26,7 @@ class _ExplorePageState extends State<ExplorePage> {
 
   Future<void> fetchArtists() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/artists/all'));
+      final response = await http.get(Uri.parse('$baseUrl/api/artist/all'));
       if (response.statusCode == 200) {
         setState(() {
           artists = json.decode(response.body)['artists'];
@@ -42,7 +42,7 @@ class _ExplorePageState extends State<ExplorePage> {
 
   Future<List<dynamic>> fetchArtistServices(String artistId) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/service/artist/$artistId'));
+      final response = await http.get(Uri.parse('$baseUrl/api/service/artist/$artistId'));
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else {

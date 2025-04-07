@@ -29,7 +29,7 @@ class _ServicePageState extends State<ServicePage> {
   Future<void> fetchArtistDetails() async {
     String? artistID = await ArtistSharedPreferences.getArtistID();
     if (artistID != null) {
-      final response = await http.get(Uri.parse('http://10.0.2.2:8000/artist/$artistID'));
+      final response = await http.get(Uri.parse('http://10.0.2.2:8000/api/artist/$artistID'));
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         setState(() {
@@ -108,7 +108,7 @@ class _ServicePageState extends State<ServicePage> {
           ],
         ),
       ),
-      bottomNavigationBar: ArtistBottomtab(currentIndex: 3),
+      bottomNavigationBar: ArtistBottomtab(currentIndex: 2),
     );
   }
 
@@ -152,7 +152,7 @@ class _ServicePageState extends State<ServicePage> {
       throw Exception('Artist ID not found');
     }
 
-    final response = await http.get(Uri.parse('http://10.0.2.2:8000/service/artist/$artistID'));
+    final response = await http.get(Uri.parse('http://10.0.2.2:8000/api/service/artist/$artistID'));
 
     if (response.statusCode == 200) {
       List<dynamic> body = jsonDecode(response.body);
@@ -212,7 +212,7 @@ class _ServicePageState extends State<ServicePage> {
 
   Future<void> _updateService(String serviceId, String name, String description, double price) async {
     final response = await http.put(
-      Uri.parse('http://10.0.2.2:8000/service/$serviceId'),
+      Uri.parse('http://10.0.2.2:8000/api/service/$serviceId'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'name': name, 'description': description, 'price': price}),
     );

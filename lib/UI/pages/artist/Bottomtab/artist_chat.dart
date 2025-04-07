@@ -15,7 +15,7 @@ class _ArtistChat extends State<ArtistChat> {
       appBar: AppBar(title: const Text('Chat')),
       body: const Center(child: Text('Welcome to the Chat Page!')),
       bottomNavigationBar: ArtistBottomtab(
-        currentIndex: 3,
+        currentIndex: 1,
       ),
     );
   }

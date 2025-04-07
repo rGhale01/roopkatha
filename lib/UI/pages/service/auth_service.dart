@@ -79,6 +79,32 @@ class AuthService {
     }
   }
 
+  Future<Map<String, dynamic>> fetchCustomerDetails() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? customerID = prefs.getString('customerID');
+      if (customerID == null) {
+        return {'error': 'No customer ID found'};
+      }
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/customer/$customerID'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        return json.decode(response.body);
+      }
+    } catch (e) {
+      print('Error: $e');
+      return {'error': e.toString()};
+    }
+  }
+
   Future<Map<String, dynamic>> registerArtist(String name, String email, String password) async {
     try {
       final response = await http.post(

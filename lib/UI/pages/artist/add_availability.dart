@@ -66,7 +66,7 @@ class _AddAvailabilityState extends State<AddAvailability> {
       throw Exception('Artist ID not found');
     }
 
-    final response = await http.get(Uri.parse('http://10.0.2.2:8000/service/artist/$artistID'));
+    final response = await http.get(Uri.parse('http://10.0.2.2:8000/api/service/artist/$artistID'));
 
     if (response.statusCode == 200) {
       List<dynamic> body = jsonDecode(response.body);
@@ -206,7 +206,7 @@ class _AddAvailabilityState extends State<AddAvailability> {
     }
 
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:8000/availability/create'),
+      Uri.parse('http://10.0.2.2:8000/api/availability/create'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -228,7 +228,7 @@ class _AddAvailabilityState extends State<AddAvailability> {
   }
 
   void _viewAvailability(Service service) async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:8000/availability/service/${service.id}'));
+    final response = await http.get(Uri.parse('http://10.0.2.2:8000/api/availability/service/${service.id}'));
 
     if (response.statusCode == 200) {
       List<dynamic> body = jsonDecode(response.body);

@@ -220,7 +220,7 @@ class _ArtistLoginPageState extends State<ArtistLoginPage> {
 
         // Debugging lines to ensure redirection logic is reached
         print('Redirecting to ArtistHomePage...');
-        Get.offAll(() => ArtistHomePage());
+        Get.offAll(() => ArtistDashboardPage());
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Login failed')));

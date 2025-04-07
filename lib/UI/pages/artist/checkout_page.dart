@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:khalti_flutter/khalti_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../customer/customer_shared_preferences.dart';
 import 'availability.dart';
 
 class CheckoutPage extends StatelessWidget {
@@ -12,7 +13,6 @@ class CheckoutPage extends StatelessWidget {
   final double serviceCharge;
   final String artistId;
   final String artistService;
-  final String customerId;
 
   const CheckoutPage({
     super.key,
@@ -22,7 +22,6 @@ class CheckoutPage extends StatelessWidget {
     required this.serviceCharge,
     required this.artistId,
     required this.artistService,
-    required this.customerId
   });
 
   @override
@@ -97,7 +96,7 @@ class CheckoutPage extends StatelessWidget {
                   child: Column(
                     children: [
                       Text(
-                        availability.startTime,
+                        '${availability.startTime} - ${availability.endTime}',
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       Text('Time', style: TextStyle(fontSize: 14, color: Colors.grey)),
@@ -149,8 +148,30 @@ class CheckoutPage extends StatelessWidget {
                   ),
                   padding: EdgeInsets.symmetric(vertical: 14, horizontal: 50),
                 ),
-                onPressed: () {
-                  createBooking(context);
+                onPressed: () async {
+                  String? customerId = await CustomerSharedPreferences.getCustomerID();
+                  print('Customer ID: $customerId');
+                  if (customerId == null || customerId.isEmpty) {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text("Booking Failed"),
+                          content: const Text("Customer ID cannot be empty."),
+                          actions: [
+                            SimpleDialogOption(
+                              child: const Text("OK"),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  } else {
+                    createBooking(context, customerId);
+                  }
                 },
                 child: Text('CheckOut', style: TextStyle(fontSize: 16, color: Colors.white)),
               ),
@@ -161,10 +182,10 @@ class CheckoutPage extends StatelessWidget {
     );
   }
 
-  Future<void> createBooking(BuildContext context) async {
+  Future<void> createBooking(BuildContext context, String customerId) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/bookings/newBooking'),
+        Uri.parse('http://10.0.2.2:8000/api/booking/newBooking'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -172,20 +193,24 @@ class CheckoutPage extends StatelessWidget {
           'customerID': customerId,
           'availabilityID': availability.id, // Ensure this is the correct availability ID
           'serviceID': serviceId,
-          'price': serviceCharge * 100, // Convert to paisa
+          'price': serviceCharge, // Ensure the price is correct
           'paymentMethod': 'Khalti',
+          'totalPrice': serviceCharge,
+          'website_url': 'http://localhost:8000', // Ensure the URL is correct
         }),
       );
 
       if (response.statusCode == 201) {
-        // If the server returns a 201 CREATED response,
-        // proceed with payment
         final bookingData = jsonDecode(response.body);
-        // initializeKhaltiPayment(context, bookingData['bookingID']);
-        payWithKhaltiInApp(context, bookingData['bookingID']);
+        print('Booking ID: ${bookingData['bookingID']}');
+        payWithKhaltiInApp(
+          context,
+          bookingData['bookingID'],
+          customerId,
+          availability.id,
+          serviceId,
+        );
       } else {
-        // If the server did not return a 201 CREATED response,
-        // show an error message
         String responseBody = response.body;
         print('Response status: ${response.statusCode}');
         print('Response body: $responseBody');
@@ -249,10 +274,24 @@ class CheckoutPage extends StatelessWidget {
     }
   }
 
-  void payWithKhaltiInApp(BuildContext context, String bookingID) {
+  void payWithKhaltiInApp(
+      BuildContext context,
+      String bookingID,
+      String customerID,
+      String availabilityID,
+      String serviceID,
+      ) {
+    print('Initiating Khalti payment with booking ID: $bookingID');
+    print('Passing values to Khalti app:');
+    print('Service ID: $serviceID');
+    print('Availability ID: $availabilityID');
+    print('Customer ID: $customerID');
+    print('Total Price: ${serviceCharge * 100}');
+    print('Website URL: http://localhost:8000');
+
     KhaltiScope.of(context).pay(
       config: PaymentConfig(
-        productIdentity: serviceId,
+        productIdentity: serviceID,
         amount: (serviceCharge * 100).toInt(),
         productName: serviceName,
       ),
@@ -261,15 +300,24 @@ class CheckoutPage extends StatelessWidget {
         PaymentPreference.sct,
       ],
       onSuccess: (success) {
-        onSuccess(context, success);
+        print('Khalti payment successful: ${success.idx}');
+        onSuccess(context, success, customerID, availabilityID, bookingID, serviceID);
       },
       onFailure: (failure) {
+        print('Khalti payment failed: ${failure.message}');
         onFailure(context, failure);
       },
     );
   }
 
-  void onSuccess(BuildContext context, PaymentSuccessModel success) {
+  void onSuccess(
+      BuildContext context,
+      PaymentSuccessModel success,
+      String customerID,
+      String availabilityID,
+      String bookingID,
+      String serviceID,
+      ) {
     showDialog(
       context: context,
       builder: (context) {
@@ -287,6 +335,9 @@ class CheckoutPage extends StatelessWidget {
         );
       },
     );
+
+    // Optionally, you can send additional information to your backend if needed
+    // for further processing or record keeping.
   }
 
   void onFailure(BuildContext context, PaymentFailureModel failure) {

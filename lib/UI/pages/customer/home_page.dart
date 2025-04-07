@@ -48,7 +48,7 @@ class _CusHomePageState extends State<CusHomePage> {
 
   Future<void> fetchArtists() async {
     final String baseUrl = 'http://10.0.2.2:8000'; // Adjust the base URL as needed
-    final String url = '$baseUrl/artists/all';
+    final String url = '$baseUrl/api/artist/all';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -67,7 +67,7 @@ class _CusHomePageState extends State<CusHomePage> {
 
   Future<List<dynamic>> fetchArtistServices(String artistId) async {
     final String baseUrl = 'http://10.0.2.2:8000'; // Adjust the base URL as needed
-    final String url = '$baseUrl/service/artist/$artistId';
+    final String url = '$baseUrl/api/service/artist/$artistId';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -349,7 +349,7 @@ class _CusHomePageState extends State<CusHomePage> {
         ),
       ),
       bottomNavigationBar: CusBottomTabs(
-        currentIndex: 3,
+        currentIndex: 0,
       ),
     );
   }

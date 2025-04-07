@@ -1,44 +1,43 @@
-import 'package:flutter/material.dart'; // Flutter UI framework
-import 'package:get/get.dart'; // State management and navigation
-import 'package:google_fonts/google_fonts.dart'; // Custom Google Fonts
-import 'package:khalti_flutter/khalti_flutter.dart'; // Khalti payment integration
-import 'package:flutter_localizations/flutter_localizations.dart'; // Flutter localization
-// Customer home page
-import 'package:roopkatha/UI/pages/welcome_page.dart'; // Welcome page
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:khalti_flutter/khalti_flutter.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:roopkatha/UI/pages/welcome_page.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized(); // Ensures Flutter bindings are initialized before running the app
-  runApp(const MyApp()); // Run the app
+  WidgetsFlutterBinding.ensureInitialized();
+
+  runApp(const MyApp());
 }
 
-// Main Application widget
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return KhaltiScope( // Wrap app with Khalti payment scope
-      publicKey: '690968f6fa104a4888d7a3f9212fad6f', // Replace with actual Khalti public key
-      enabledDebugging: false, // Disable debugging in production
+    return KhaltiScope(
+      publicKey: 'test_public_key_0f28c5bbbfc745d1809260a72e6a1db0', // ✅ Replace with your actual test public key
       builder: (context, navigatorKey) {
-        return GetMaterialApp( // Use GetMaterialApp for navigation and state management
-          navigatorKey: navigatorKey, // Assign Khalti navigator key
-          title: 'RoopKatha', // App title
+        return GetMaterialApp(
+          navigatorKey: navigatorKey,
+          title: 'RoopKatha',
           theme: ThemeData(
-            primarySwatch: Colors.blue, // Set primary theme color
-            fontFamily: GoogleFonts.lato().fontFamily, // Apply Google Fonts
+            primarySwatch: Colors.pink,
+            fontFamily: GoogleFonts.lato().fontFamily,
           ),
-          localizationsDelegates: [
-            KhaltiLocalizations.delegate, // Add Khalti localization
+          debugShowCheckedModeBanner: false,
+          home: const WelcomeScreen(),
+          localizationsDelegates: const [
+            KhaltiLocalizations.delegate, // ✅ Add Khalti localization
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: const [
             Locale('en', 'US'),
-            Locale('ne', 'NP'), // Support for Nepali language
+            Locale('ne', 'NP'),
           ],
-          home: const WelcomeScreen(), // Default to welcome screen
         );
       },
     );

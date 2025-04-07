@@ -51,7 +51,7 @@ class _ArtistBottomtab extends State<ArtistBottomtab> {
       switch (currentIndex) {
         case 0:
           Get.to(
-            ArtistHomePage(),
+            ArtistDashboardPage(),
             transition: Transition.rightToLeftWithFade,
             duration: const Duration(seconds: 1),
           );

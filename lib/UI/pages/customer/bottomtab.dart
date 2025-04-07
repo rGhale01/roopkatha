@@ -94,10 +94,14 @@ class _CusBottomTabsState extends State<CusBottomTabs> {
       selectedFontSize: 0,
       currentIndex: currentIndex,
       onTap: onTap,
-      selectedItemColor: Colors.black,
-      unselectedItemColor: Colors.grey.withOpacity(0.8),
+      selectedItemColor: Colors.pink,
+      // changed to pink
+      unselectedItemColor: Colors.grey,
+      // changed to grey
       showSelectedLabels: false,
+      // hide selected labels
       showUnselectedLabels: false,
+      // hide unselected labels
       type: BottomNavigationBarType.fixed,
       items: const [
         BottomNavigationBarItem(
