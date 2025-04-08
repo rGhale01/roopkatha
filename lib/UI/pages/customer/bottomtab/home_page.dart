@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:roopkatha/UI/pages/artist/artist_details.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'bottomtab.dart';
 import 'explore_page.dart';
 
@@ -17,14 +18,23 @@ class _CusHomePageState extends State<CusHomePage> {
   List<dynamic> artists = [];
   String serviceName = '';
   String customerName = '';
-  String customerId = 'YOUR_CUSTOMER_ID'; // Add the customer ID here
+  String customerId = ''; // Initialize as empty string
   String searchQuery = '';
 
   @override
   void initState() {
     super.initState();
-    fetchCustomerName();
+    fetchCustomerData();
     fetchArtists();
+  }
+
+  Future<void> fetchCustomerData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      customerId = prefs.getString('customerID') ?? 'YOUR_CUSTOMER_ID';
+      customerName = prefs.getString('customerName') ?? '';
+    });
+    fetchCustomerName();
   }
 
   Future<void> fetchCustomerName() async {
@@ -38,6 +48,8 @@ class _CusHomePageState extends State<CusHomePage> {
         setState(() {
           customerName = json.decode(response.body)['name'];
         });
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('customerName', customerName);
       } else {
         throw Exception('Failed to load customer name');
       }
@@ -117,7 +129,7 @@ class _CusHomePageState extends State<CusHomePage> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
-                'Hello,\nHi $customerName,',
+                'Hi $customerName,',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -354,4 +366,3 @@ class _CusHomePageState extends State<CusHomePage> {
     );
   }
 }
-

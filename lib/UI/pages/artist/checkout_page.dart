@@ -53,11 +53,11 @@ class CheckoutPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        artistId,
+                        artistService,
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        artistService,
+                        serviceName,
                         style: TextStyle(fontSize: 14, color: Colors.grey),
                       ),
                     ],
@@ -185,7 +185,7 @@ class CheckoutPage extends StatelessWidget {
   Future<void> createBooking(BuildContext context, String customerId) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/api/booking/newBooking'),
+        Uri.parse('http://10.0.2.2:8000/api/newBooking'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -193,6 +193,7 @@ class CheckoutPage extends StatelessWidget {
           'customerID': customerId,
           'availabilityID': availability.id, // Ensure this is the correct availability ID
           'serviceID': serviceId,
+          'artistID': artistId, // Include artistID
           'price': serviceCharge, // Ensure the price is correct
           'paymentMethod': 'Khalti',
           'totalPrice': serviceCharge,

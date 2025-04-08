@@ -35,10 +35,17 @@ class AdminSidebar extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: Icon(Icons.people),
+            title: Text('Verified Artists'),
+            onTap: () {
+              Get.toNamed('/admin/verified-artists');
+            },
+          ),
+          ListTile(
             leading: Icon(Icons.logout),
             title: Text('Sign Out'),
             onTap: () {
-              // Handle sign out
+              // TODO: Handle sign out
             },
           ),
         ],

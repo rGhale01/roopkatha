@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:roopkatha/UI/pages/customer/signup_page.dart';
 import '../service/auth_service.dart';
-import 'home_page.dart'; // Assuming you have a HomePage
+import 'bottomtab/home_page.dart'; // Assuming you have a HomePage
 
 class CustomerLoginPage extends StatefulWidget {
   const CustomerLoginPage({super.key});

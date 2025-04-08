@@ -71,9 +71,7 @@ class _UploadKycScreenState extends State<UploadKycScreen> {
       var response = await request.send();
 
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("KYC documents uploaded successfully.")),
-        );
+        _showDialog(context, "Request sent wait for approval.");
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Failed to upload KYC documents.")),
@@ -88,6 +86,27 @@ class _UploadKycScreenState extends State<UploadKycScreen> {
     setState(() {
       _isLoading = false;
     });
+  }
+
+  void _showDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Upload KYC"),
+          content: Text(message),
+          actions: [
+            TextButton(
+              child: Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                Get.toNamed('/welcome'); // Redirect to welcome screen
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override

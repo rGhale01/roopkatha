@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:roopkatha/admin/sidebar.dart';
 
 class VerifyKycPage extends StatefulWidget {
   @override
@@ -50,7 +51,7 @@ class _VerifyKycPageState extends State<VerifyKycPage> {
     } catch (e) {
       setState(() {
         isLoading = false;
-        errorMessage = 'Error: ${e.toString()}';
+        errorMessage = 'Error: ${e.toString()}'; // ✅ fixed here
       });
     }
   }
@@ -74,46 +75,119 @@ class _VerifyKycPageState extends State<VerifyKycPage> {
     }
   }
 
+  void _viewFile(String imagePath) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ImageViewPage(imagePath: imagePath),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Verify KYC"),
+        title: Text("Pending Verification"),
       ),
+      drawer: AdminSidebar(), // Add the sidebar
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : errorMessage.isNotEmpty
           ? Center(child: Text(errorMessage))
-          : ListView.builder(
-        itemCount: artists.length,
-        itemBuilder: (context, index) {
-          final artist = artists[index];
-          return Card(
-            child: ListTile(
-              title: Text(artist['name']),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(artist['email']),
-                  SizedBox(height: 8),
-                  artist['citizenshipFilePath'] != null
-                      ? Image.network(artist['citizenshipFilePath'])
-                      : Text('No Citizenship Image'),
-                  SizedBox(height: 8),
-                  artist['panFilePath'] != null
-                      ? Image.network(artist['panFilePath'])
-                      : Text('No PAN Image'),
-                ],
+          : SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: DataTable(
+          columns: [
+            DataColumn(label: Text('Artist Name')),
+            DataColumn(label: Text('Citizenship Card')),
+            DataColumn(label: Text('Pancard')),
+            DataColumn(label: Text('Status')),
+            DataColumn(label: Text('Submission Date')),
+            DataColumn(label: Text('Action')), // Add Action column
+          ],
+          rows: artists.map((artist) {
+            return DataRow(cells: [
+              DataCell(Text(artist['name'] ?? 'N/A')),
+              DataCell(
+                artist['citizenshipFilePath'] != null
+                    ? InkWell(
+                  onTap: () {
+                    _viewFile(artist['citizenshipFilePath']);
+                  },
+                  child: Text(
+                    'View file',
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                )
+                    : Text('No Citizenship Image'),
               ),
-              trailing: ElevatedButton(
-                onPressed: () {
-                  _verifyArtist(artist['_id']);
-                },
-                child: Text("Verify"),
+              DataCell(
+                artist['panFilePath'] != null
+                    ? InkWell(
+                  onTap: () {
+                    _viewFile(artist['panFilePath']);
+                  },
+                  child: Text(
+                    'View file',
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                )
+                    : Text('No PAN Image'),
               ),
-            ),
-          );
-        },
+              DataCell(
+                Text(
+                  'Pending',
+                  style: TextStyle(color: Colors.orange),
+                ),
+              ),
+              DataCell(Text(artist['submissionDate'] ?? 'N/A')),
+              DataCell(
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        _verifyArtist(artist['_id']);
+                      },
+                      child: Text("Approve"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green, // ✅ updated here
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        // Implement reject functionality
+                      },
+                      child: Text("Reject"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red, // Background color
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ]);
+          }).toList(),
+        ),
+      ),
+    );
+  }
+}
+
+class ImageViewPage extends StatelessWidget {
+  final String imagePath;
+
+  ImageViewPage({required this.imagePath});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("View Image"),
+      ),
+      body: Center(
+        child: Image.network(imagePath),
       ),
     );
   }

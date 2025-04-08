@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:roopkatha/UI/pages/customer/booking_page.dart';
-import 'package:roopkatha/UI/pages/customer/cus_chat_page.dart';
-import 'package:roopkatha/UI/pages/customer/cus_profile_page.dart';
+import 'package:roopkatha/UI/pages/customer/bottomtab/cus_chat_page.dart';
+import 'package:roopkatha/UI/pages/customer/bottomtab/cus_profile_page.dart';
+import '../Booking/MyBooking.dart';
 import 'explore_page.dart';
 import 'home_page.dart';
 
@@ -64,7 +65,7 @@ class _CusBottomTabsState extends State<CusBottomTabs> {
           break;
         case 2:
           Get.to(
-            BookingPage(),
+            MyBookingsApp(),
             transition: Transition.rightToLeftWithFade,
             duration: const Duration(seconds: 1),
           );

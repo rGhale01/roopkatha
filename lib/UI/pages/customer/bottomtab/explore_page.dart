@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../artist/artist_details.dart';
+import '../../artist/artist_details.dart';
 import 'bottomtab.dart';
 
 class ExplorePage extends StatefulWidget {

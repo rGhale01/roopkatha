@@ -27,6 +27,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   image_picker: ^1.0.8
   url_launcher: ^6.0.3
+  fl_chart: ^0.40.0
 
 dependency_overrides:
   intl: 0.18.0 # Force intl 0.18.0 to resolve conflicts
@@ -43,3 +44,4 @@ flutter:
     - assets/logo.png
     - assets/welcome.png
     - assets/khalti_logo.png
+    - assets/booking.png

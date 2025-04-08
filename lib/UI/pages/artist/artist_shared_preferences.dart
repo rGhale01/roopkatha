@@ -53,4 +53,14 @@ class ArtistSharedPreferences {
     await prefs.remove(_artistEmailKey);
     await prefs.remove(_authTokenKey);
   }
+
+  static Future<Map<String, String?>> fetchArtistDetails() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return {
+      'artistID': prefs.getString(_artistIDKey),
+      'artistName': prefs.getString(_artistNameKey),
+      'artistEmail': prefs.getString(_artistEmailKey),
+      'authToken': prefs.getString(_authTokenKey),
+    };
+  }
 }

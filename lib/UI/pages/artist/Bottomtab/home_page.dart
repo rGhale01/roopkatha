@@ -1,19 +1,31 @@
 import 'package:flutter/material.dart';
+import '../bottomtab/artist_bottomtab.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:intl/intl.dart';
-import 'package:roopkatha/UI/pages/artist/Bottomtab/artist_bottomtab.dart';
-
 import '../artist_shared_preferences.dart';
+import 'BookingCard.dart';
+import 'BookingDetailPage.dart';
 
-class ArtistDashboardPage extends StatefulWidget {
-  const ArtistDashboardPage({super.key});
-
-  @override
-  _ArtistDashboardPageState createState() => _ArtistDashboardPageState();
+void main() {
+  runApp(ArtistBookingsApp());
 }
 
-class _ArtistDashboardPageState extends State<ArtistDashboardPage> {
+class ArtistBookingsApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: ArtistDashboardPage(),
+    );
+  }
+}
+
+class ArtistDashboardPage extends StatefulWidget {
+  @override
+  _ArtistDashboardPage createState() => _ArtistDashboardPage();
+}
+
+class _ArtistDashboardPage extends State<ArtistDashboardPage> {
   List<dynamic> bookings = [];
   String? artistId;
 
@@ -33,15 +45,22 @@ class _ArtistDashboardPageState extends State<ArtistDashboardPage> {
   }
 
   Future<void> fetchBookings() async {
+    print('Fetching bookings for artist ID: $artistId'); // Log artist ID
+
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/api/bookings/artist/$artistId'),
+        Uri.parse('http://10.0.2.2:8000/api/bookings/artist/$artistId?status=active'),
       );
 
+      print('Response status: ${response.statusCode}'); // Log response status
+      print('Response body: ${response.body}'); // Log response body
+
       if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
         setState(() {
-          bookings = jsonDecode(response.body)['Bookings'];
+          bookings = jsonData['Bookings'];
         });
+        print('Bookings fetched successfully: $bookings'); // Log fetched bookings
       } else {
         print('Failed to load bookings: ${response.reasonPhrase}');
         showErrorDialog('Failed to load bookings: ${response.reasonPhrase}');
@@ -70,106 +89,68 @@ class _ArtistDashboardPageState extends State<ArtistDashboardPage> {
     );
   }
 
+  void cancelBooking(String bookingId) async {
+    try {
+      final response = await http.patch(
+        Uri.parse('http://10.0.2.2:8000/api/bookings/delete/$bookingId'),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          bookings.removeWhere((booking) => booking['_id'] == bookingId);
+        });
+        print('Booking canceled successfully');
+      } else {
+        print('Failed to cancel booking: ${response.reasonPhrase}');
+        showErrorDialog('Failed to cancel booking: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      print('Error: $e');
+      showErrorDialog('An error occurred while canceling the booking: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        elevation: 0,
         backgroundColor: Colors.white,
+        elevation: 0,
         centerTitle: true,
         title: const Text(
-          'Dashboard',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          'Artist Bookings',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w600,
+          ),
         ),
-        automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Comming Appointment',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                color: Color(0xFF2F3967),
+        child: bookings.isEmpty
+            ? Center(child: Text('No bookings found.'))
+            : ListView.builder(
+          itemCount: bookings.length,
+          itemBuilder: (context, index) {
+            final booking = bookings[index];
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BookingDetailPage(booking: booking),
+                  ),
+                );
+              },
+              child: ArtistBookingCard(
+                booking: booking,
+                onCancel: () => cancelBooking(booking['_id']),
               ),
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: ListView.builder(
-                itemCount: bookings.length,
-                itemBuilder: (context, index) {
-                  final booking = bookings[index];
-                  return BookingCard(booking: booking);
-                },
-              ),
-            ),
-          ],
+            );
+          },
         ),
       ),
       bottomNavigationBar: ArtistBottomtab(currentIndex: 0),
-    );
-  }
-}
-
-class BookingCard extends StatelessWidget {
-  final dynamic booking;
-
-  const BookingCard({super.key, required this.booking});
-
-  @override
-  Widget build(BuildContext context) {
-    final user = booking['customerID'];
-    final availability = booking['availabilityID'];
-
-    final date = DateTime.parse(availability['date']);
-    final formattedDate = DateFormat('EEEE, MMMM d').format(date); // Thursday, October 17
-    final formattedTime = DateFormat.jm().format(DateFormat('HH:mm').parse(availability['startTime']));
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: ListTile(
-          contentPadding: const EdgeInsets.all(10),
-          leading: CircleAvatar(
-            backgroundImage: NetworkImage(
-              user['profileImage'] ?? 'https://example.com/user_avatar.png',
-            ),
-            radius: 25,
-          ),
-          title: Text(
-            user['name'],
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          subtitle: Row(
-            children: [
-              const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
-              const SizedBox(width: 6),
-              Text(
-                '$formattedDate\n$formattedTime',
-                style: const TextStyle(height: 1.4),
-              ),
-            ],
-          ),
-          trailing: OutlinedButton(
-            onPressed: () {
-              // Implement cancel logic
-            },
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.red,
-              side: const BorderSide(color: Colors.red),
-            ),
-            child: const Text('Cancel'),
-          ),
-        ),
-      ),
     );
   }
 }

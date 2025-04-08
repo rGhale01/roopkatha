@@ -167,238 +167,95 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (snapshot.hasData) {
-          return SizedBox(
-            width: 393,
-            height: 852,
-            child: Stack(
-              children: <Widget>[
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  child: Container(
-                    width: 393,
-                    height: 852,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(54),
-                        topRight: Radius.circular(54),
-                        bottomLeft: Radius.circular(54),
-                        bottomRight: Radius.circular(54),
-                      ),
-                      color: Color.fromRGBO(255, 255, 255, 1),
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(42),
+                  child: Image.network(
+                    snapshot.data!.profilePictureUrl,
+                    width: double.infinity,
+                    height: 218,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Image.asset(
+                        'assets/logo.png',
+                        fit: BoxFit.cover,
+                      );
+                    },
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    snapshot.data!.name,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontFamily: 'Poppins',
+                      fontSize: 20,
                     ),
-                    child: Stack(
-                      children: <Widget>[
-                        Positioned(
-                          top: 98,
-                          left: 18,
-                          child: Container(
-                            width: 357,
-                            height: 218,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(42),
-                                topRight: Radius.circular(42),
-                                bottomLeft: Radius.circular(42),
-                                bottomRight: Radius.circular(42),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    'Services',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontFamily: 'Poppins',
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+                FutureBuilder<List<Service>>(
+                  future: services,
+                  builder: (context, serviceSnapshot) {
+                    if (serviceSnapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    } else if (serviceSnapshot.hasError) {
+                      return Center(child: Text('Error: ${serviceSnapshot.error}'));
+                    } else if (!serviceSnapshot.hasData || serviceSnapshot.data!.isEmpty) {
+                      return Center(child: Text('No services available'));
+                    } else {
+                      return Expanded(
+                        child: ListView.builder(
+                          itemCount: serviceSnapshot.data!.length,
+                          itemBuilder: (context, index) {
+                            final service = serviceSnapshot.data![index];
+                            return Card(
+                              color: selectedServiceId == service.id ? Colors.grey[300] : Colors.white,
+                              child: ListTile(
+                                title: Text(service.name),
+                                subtitle: Text('${service.description}\nPrice: ${service.price}\nDuration: ${service.duration} min'),
+                                onTap: () {
+                                  _onServiceSelected(service.id, service.name, service.price);
+                                },
                               ),
-                            ),
-                            child: Image.network(
-                              snapshot.data!.profilePictureUrl,
-                              fit: BoxFit.fitWidth,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Image.asset(
-                                  'assets/logo.png',
-                                  fit: BoxFit.fitWidth,
-                                );
-                              },
-                            ),
-                          ),
+                            );
+                          },
                         ),
-                        Positioned(
-                          top: 63.5971565246582,
-                          left: 25.19230842590332,
-                          child: Transform.rotate(
-                            angle: -90 * (math.pi / 180),
-                            child: SvgPicture.asset(
-                              'assets/images/back.svg',
-                              semanticsLabel: 'back',
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 120,
-                          left: 324,
-                          child: SizedBox(
-                            width: 37,
-                            height: 37,
-                            child: Stack(
-                              children: <Widget>[
-                                Positioned(
-                                  top: 0,
-                                  left: 0,
-                                  child: Container(
-                                    width: 37,
-                                    height: 37,
-                                    decoration: BoxDecoration(
-                                      color: Color.fromRGBO(255, 252, 252, 1),
-                                      borderRadius: BorderRadius.all(Radius.elliptical(37, 37)),
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 9,
-                                  left: 8,
-                                  child: SvgPicture.asset(
-                                    'assets/images/heartfavourite.svg',
-                                    semanticsLabel: 'heartfavourite',
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 337,
-                          left: 24.184585571289062,
-                          child: Text(
-                            snapshot.data!.name,
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                              color: Color.fromRGBO(0, 0, 0, 1),
-                              fontFamily: 'Poppins',
-                              fontSize: 20,
-                              fontWeight: FontWeight.normal,
-                              height: 1,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 367,
-                          left: 24.184585571289062,
-                          child: Text(
-                            widget.artistName,
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                              color: Color.fromRGBO(135, 135, 135, 1),
-                              fontFamily: 'Poppins',
-                              fontSize: 12,
-                              fontWeight: FontWeight.normal,
-                              height: 1,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 402,
-                          left: 17,
-                          child: Text(
-                            'Services',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Color.fromRGBO(15, 15, 15, 1),
-                              fontFamily: 'Poppins',
-                              fontSize: 20,
-                              fontWeight: FontWeight.normal,
-                              height: 1.2,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 450,
-                          left: 20,
-                          right: 20,
-                          child: FutureBuilder<List<Service>>(
-                            future: services,
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.waiting) {
-                                return Center(child: CircularProgressIndicator());
-                              } else if (snapshot.hasError) {
-                                return Center(child: Text('Error: ${snapshot.error}'));
-                              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                                return Center(child: Text('No services available'));
-                              } else {
-                                return ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: snapshot.data!.length,
-                                  itemBuilder: (context, index) {
-                                    final service = snapshot.data![index];
-                                    return Card(
-                                      color: selectedServiceId == service.id ? Colors.grey[300] : Colors.white,
-                                      child: ListTile(
-                                        title: Text(service.name),
-                                        subtitle: Text('${service.description}\nPrice: ${service.price}\nDuration: ${service.duration} min'),
-                                        onTap: () {
-                                          _onServiceSelected(service.id, service.name, service.price);
-                                        },
-                                      ),
-                                    );
-                                  },
-                                );
-                              }
-                            },
-                          ),
-                        ),
-                        Positioned(
-                          top: 717,
-                          left: 46,
-                          child: GestureDetector(
-                            onTap: _onNextButtonPressed,
-                            child: SizedBox(
-                              width: 300.29229736328125,
-                              height: 50,
-                              child: Stack(
-                                children: <Widget>[
-                                  Positioned(
-                                    top: 0,
-                                    left: 0,
-                                    child: Container(
-                                      width: 300.29229736328125,
-                                      height: 50,
-                                      decoration: BoxDecoration(),
-                                      child: Stack(
-                                        children: <Widget>[
-                                          Positioned(
-                                            top: 0,
-                                            left: 0,
-                                            child: Container(
-                                              width: 298,
-                                              height: 50,
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.only(
-                                                  topLeft: Radius.circular(25),
-                                                  topRight: Radius.circular(25),
-                                                  bottomLeft: Radius.circular(25),
-                                                  bottomRight: Radius.circular(25),
-                                                ),
-                                                color: Color.fromRGBO(255, 125, 229, 1),
-                                              ),
-                                            ),
-                                          ),
-                                          Positioned(
-                                            top: 13,
-                                            left: 75.57691955566406,
-                                            child: Text(
-                                              'Next',
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                color: Color.fromRGBO(255, 255, 255, 1),
-                                                fontFamily: 'Poppins',
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.normal,
-                                                height: 1,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                      );
+                    }
+                  },
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _onNextButtonPressed,
+                    child: Text(
+                      'Next',
+                      style: TextStyle(
+                        color: Colors.white, // Text color set to white
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.pinkAccent, // Background color set to pink
+                      padding: EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
                     ),
                   ),
                 ),
