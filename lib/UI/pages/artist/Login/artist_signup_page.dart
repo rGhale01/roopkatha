@@ -16,6 +16,10 @@ class _ArtistSignupPage extends State<ArtistSignupPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController(); // Added confirmPassword controller
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _dobController = TextEditingController(); // For displaying DOB as text
+  String? _selectedGender; // Dropdown gender selection
 
   bool _isLoading = false;
   final AuthService _authService = AuthService();
@@ -69,7 +73,64 @@ class _ArtistSignupPage extends State<ArtistSignupPage> {
                       _buildTextField(_emailController, "Email", Icons.email, keyboardType: TextInputType.emailAddress),
                       const SizedBox(height: 15),
                       _buildTextField(_passwordController, "Password", Icons.lock, obscureText: true),
+                      const SizedBox(height: 15),
+                      _buildTextField(_confirmPasswordController, "Confirm Password", Icons.lock, obscureText: true), // Confirm Password Field
+                      const SizedBox(height: 15),
+
+                      // Date of Birth Field (Calendar Picker)
+                      GestureDetector(
+                        onTap: () async {
+                          DateTime? pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime.now(),
+                          );
+
+                          if (pickedDate != null) {
+                            setState(() {
+                              _dobController.text = pickedDate.toLocal().toString().split(' ')[0]; // Format as YYYY-MM-DD
+                            });
+                          }
+                        },
+                        child: AbsorbPointer(
+                          child: _buildTextField(_dobController, "Date of Birth (YYYY-MM-DD)", Icons.calendar_today),
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+
+                      // Phone Number Field
+                      _buildTextField(_phoneController, "Phone Number", Icons.phone, keyboardType: TextInputType.phone),
+                      const SizedBox(height: 15),
+
+                      // Gender Dropdown
+                      DropdownButtonFormField<String>(
+                        value: _selectedGender,
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.person_outline),
+                          hintText: "Select Gender",
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        items: ['Male', 'Female']
+                            .map((gender) => DropdownMenuItem(
+                          value: gender,
+                          child: Text(gender),
+                        ))
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedGender = value;
+                          });
+                        },
+                        validator: (value) => value == null ? 'Please select your gender' : null,
+                      ),
                       const SizedBox(height: 30),
+
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
@@ -123,12 +184,30 @@ class _ArtistSignupPage extends State<ArtistSignupPage> {
           borderSide: BorderSide.none,
         ),
       ),
-      validator: (value) => value!.isEmpty ? 'Please enter your $hint' : null,
+      validator: (value) {
+        if (value!.isEmpty) {
+          return 'Please enter your $hint';
+        }
+        if (hint == "Confirm Password" && value != _passwordController.text) {
+          return "Passwords do not match";
+        }
+        return null;
+      },
     );
   }
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      if (_dobController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select your Date of Birth")));
+        return;
+      }
+
+      if (_selectedGender == null) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select your Gender")));
+        return;
+      }
+
       setState(() {
         _isLoading = true;
       });
@@ -137,6 +216,10 @@ class _ArtistSignupPage extends State<ArtistSignupPage> {
         _nameController.text,
         _emailController.text,
         _passwordController.text,
+        _confirmPasswordController.text, // Include confirmPassword
+        _dobController.text,
+        _phoneController.text,
+        _selectedGender!,
       );
 
       setState(() {

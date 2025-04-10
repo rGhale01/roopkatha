@@ -6,7 +6,10 @@ class CustomerSharedPreferences {
   static const customerNameKey = 'customerName';
   static const customerEmailKey = 'customerEmail';
   static const authTokenKey = 'authToken';
-  static const customerNumberKey = 'customerNumber'; // Added customer number key
+  static const customerNumberKey = 'customerNumber';
+  static const customerDOBKey = 'customerDOB'; // New Key for DOB
+  static const customerGenderKey = 'customerGender'; // New Key for Gender
+  static const profilePictureUrlKey = 'profilePictureUrl';
 
   // Get individual fields
   static Future<String?> getCustomerID() async {
@@ -29,9 +32,24 @@ class CustomerSharedPreferences {
     return prefs.getString(authTokenKey);
   }
 
-  static Future<String?> getCustomerNumber() async { // Added method to get customer number
+  static Future<String?> getCustomerNumber() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(customerNumberKey);
+  }
+
+  static Future<String?> getCustomerDOB() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(customerDOBKey);
+  }
+
+  static Future<String?> getCustomerGender() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(customerGenderKey);
+  }
+
+  static Future<String?> getProfilePictureUrl() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(profilePictureUrlKey);
   }
 
   // Save all customer data at once (Optional: Useful after login or signup)
@@ -40,14 +58,29 @@ class CustomerSharedPreferences {
     required String customerName,
     required String customerEmail,
     required String authToken,
-    required String customerNumber, // Added customer number parameter
+    required String customerNumber,
+    required String customerDOB, // New field for DOB
+    required String customerGender, // New field for Gender
+    required String profilePictureUrl,
   }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString(customerIDKey, customerID);
     await prefs.setString(customerNameKey, customerName);
     await prefs.setString(customerEmailKey, customerEmail);
     await prefs.setString(authTokenKey, authToken);
-    await prefs.setString(customerNumberKey, customerNumber); // Saving customer number
+    await prefs.setString(customerNumberKey, customerNumber);
+    await prefs.setString(customerDOBKey, customerDOB); // Save DOB
+    await prefs.setString(customerGenderKey, customerGender); // Save Gender
+    await prefs.setString(profilePictureUrlKey, profilePictureUrl); // Save Profile Picture URL
+
+    // Debug statements to confirm data is saved
+    print('Saved customer ID: $customerID');
+    print('Saved customer name: $customerName');
+    print('Saved customer email: $customerEmail');
+    print('Saved auth token: $authToken');
+    print('Saved customer number: $customerNumber');
+    print('Saved customer DOB: $customerDOB');
+    print('Saved customer gender: $customerGender');
   }
 
   // Check if customer is logged in
@@ -63,7 +96,10 @@ class CustomerSharedPreferences {
     await prefs.remove(customerNameKey);
     await prefs.remove(customerEmailKey);
     await prefs.remove(authTokenKey);
-    await prefs.remove(customerNumberKey); // Removing customer number
+    await prefs.remove(customerNumberKey);
+    await prefs.remove(customerDOBKey); // Clear DOB
+    await prefs.remove(customerGenderKey); // Clear Gender
+    await prefs.remove(profilePictureUrlKey); // Clear Profile Picture URL
   }
 
   // Clear ALL preferences if needed (Optional)

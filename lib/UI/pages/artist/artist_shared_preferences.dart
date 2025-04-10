@@ -63,4 +63,6 @@ class ArtistSharedPreferences {
       'authToken': prefs.getString(_authTokenKey),
     };
   }
+
+  static saveArtistData({required artistID, required artistName, required artistEmail, required authToken, required artistPhoneNo, required artistDOB, required artistGender}) {}
 }

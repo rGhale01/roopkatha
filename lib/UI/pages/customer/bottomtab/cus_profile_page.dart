@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:roopkatha/UI/pages/customer/login_page.dart';
-import 'package:roopkatha/UI/pages/customer/profile/notification.dart';
-import 'package:roopkatha/UI/pages/service/auth_service.dart';
+import '../../service/auth_service.dart';
 import '../customer_shared_preferences.dart';
+
+import '../login_page.dart';
 import '../profile/editProfile.dart';
 import 'bottomtab.dart';
 
@@ -19,7 +19,7 @@ class _CustomerProfileState extends State<CustomerProfile> {
   bool _isLoading = false;
   String _customerName = '';
   String _customerPhone = '';
-  String _customerNumber = '';
+  String _profilePictureUrl = ''; // Default image
 
   @override
   void initState() {
@@ -35,7 +35,12 @@ class _CustomerProfileState extends State<CustomerProfile> {
     try {
       _customerName = await CustomerSharedPreferences.getCustomerName() ?? '';
       _customerPhone = await CustomerSharedPreferences.getCustomerNumber() ?? '';
-      // If you have separate getter for customer number, get it here separately
+      _profilePictureUrl = await CustomerSharedPreferences.getProfilePictureUrl() ?? '';
+
+      // Debug statements to print fetched values
+      print('Fetched customer name: $_customerName');
+      print('Fetched customer phone: $_customerPhone');
+      print('Fetched profile image URL: $_profilePictureUrl');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to load customer data')),
@@ -84,15 +89,17 @@ class _CustomerProfileState extends State<CustomerProfile> {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF2C2C2C),
+                color: Colors.black,
               ),
             ),
             const SizedBox(height: 25),
             Stack(
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 65,
-                  backgroundImage: AssetImage('assets/welcome.png'),
+                  backgroundImage: _profilePictureUrl.startsWith('http')
+                      ? NetworkImage(_profilePictureUrl)
+                      : AssetImage(_profilePictureUrl) as ImageProvider,
                 ),
                 Positioned(
                   bottom: 0,
@@ -104,7 +111,7 @@ class _CustomerProfileState extends State<CustomerProfile> {
                     child: Container(
                       decoration: const BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Color(0xFF2C2C2C),
+                        color: Colors.black,
                       ),
                       padding: const EdgeInsets.all(6),
                       child: const Icon(
@@ -119,27 +126,19 @@ class _CustomerProfileState extends State<CustomerProfile> {
             ),
             const SizedBox(height: 16),
             Text(
-              _customerName,   // Corrected
+              _customerName,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
-                color: Color(0xFF2C2C2C),
+                color: Colors.black,
               ),
             ),
             const SizedBox(height: 4),
             Text(
-              _customerPhone,   // Corrected
+              _customerPhone,
               style: const TextStyle(
                 fontSize: 14,
-                color: Color(0xFF7E7E7E),
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              _customerNumber,   // Corrected
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xFF7E7E7E),
+                color: Colors.black,
               ),
             ),
             const SizedBox(height: 30),
@@ -151,13 +150,6 @@ class _CustomerProfileState extends State<CustomerProfile> {
                     'Edit Profile',
                         () {
                       Get.to(() => const EditProfilePage());
-                    },
-                  ),
-                  _buildProfileOption(
-                    Icons.notifications_none,
-                    'Notifications',
-                        () {
-                      Get.to(() => NotificationsPage());  // Corrected navigation
                     },
                   ),
                   _buildProfileOption(

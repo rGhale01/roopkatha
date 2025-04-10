@@ -5,6 +5,8 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 
+import '../../welcome_page.dart';
+
 class UploadKycScreen extends StatefulWidget {
   const UploadKycScreen({super.key});
 
@@ -99,8 +101,10 @@ class _UploadKycScreenState extends State<UploadKycScreen> {
             TextButton(
               child: Text("OK"),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                Get.toNamed('/welcome'); // Redirect to welcome screen
+                Get.back(); // Close the dialog
+                Future.delayed(Duration(milliseconds: 100), () {
+                  Get.to(() => const WelcomeScreen()); // Navigate to WelcomeScreen directly
+                });
               },
             ),
           ],
@@ -108,6 +112,7 @@ class _UploadKycScreenState extends State<UploadKycScreen> {
       },
     );
   }
+
 
   @override
   Widget build(BuildContext context) {

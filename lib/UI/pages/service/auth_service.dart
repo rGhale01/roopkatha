@@ -1,13 +1,25 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:roopkatha/UI/pages/artist/artist_shared_preferences.dart';
+import '../artist/artist_shared_preferences.dart';
+import '../customer/customer_shared_preferences.dart';
+import 'package:intl/intl.dart'; // You
 
 class AuthService {
   final String baseUrl = 'http://10.0.2.2:8000/api';
 
-  Future<Map<String, dynamic>> registerCustomer(String fullName, String email, String password) async {
+  Future<Map<String, dynamic>> registerCustomer(
+      String fullName,
+      String email,
+      String password,
+      String confirmPassword,
+      String phoneNo,
+      DateTime dob, // Change dob to DateTime type
+      String gender) async {
     try {
+      // Format the DateTime object to ISO 8601 string (YYYY-MM-DD)
+      String formattedDob = DateFormat('yyyy-MM-dd').format(dob);
+
       final response = await http.post(
         Uri.parse('$baseUrl/customer/CustomerRegister'),
         headers: <String, String>{
@@ -17,6 +29,10 @@ class AuthService {
           'name': fullName,
           'email': email,
           'password': password,
+          'confirmPassword': confirmPassword,
+          'phoneNo': phoneNo,
+          'DOB': formattedDob, // Use the formatted DOB
+          'gender': gender,
         }),
       );
 
@@ -26,7 +42,8 @@ class AuthService {
       if (response.statusCode == 201) {
         return json.decode(response.body);
       } else {
-        return json.decode(response.body);
+        final errorResponse = json.decode(response.body);
+        throw Exception(errorResponse['error']);
       }
     } catch (e) {
       print('Error: $e');
@@ -34,7 +51,9 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> loginCustomer(String email, String password) async {
+
+
+  Future<Map<String, dynamic>> loginCustomer(String identifier, String password) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/customer/CustomerLogin'),
@@ -42,7 +61,7 @@ class AuthService {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, String>{
-          'email': email,
+          'identifier': identifier, // Can be email or phone number
           'password': password,
         }),
       );
@@ -54,20 +73,17 @@ class AuthService {
         final Map<String, dynamic> responseData = json.decode(response.body);
         print('Login response data: $responseData'); // Debug statement
 
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-
-        // Store the customer ID and auth token in SharedPreferences, handling potential null values
-        String customerID = responseData['customer']['_id'] ?? '';
-        String? authToken = responseData['token']; // Ensure the correct key is used
-
-        await prefs.setString('customerID', customerID);
-        print('Stored customer ID: $customerID'); // Debug statement
-        if (authToken != null) {
-          await prefs.setString('authToken', authToken);
-          print('Stored auth token: $authToken'); // Debug statement
-        } else {
-          print('Auth token is null'); // Debug statement
-        }
+        // Save customer data
+        await CustomerSharedPreferences.saveCustomerData(
+          customerID: responseData['customer']['_id'] ?? '',
+          customerName: responseData['customer']['name'] ?? '',
+          customerEmail: responseData['customer']['email'] ?? '',
+          authToken: responseData['token'] ?? '',
+          customerNumber: responseData['customer']['phoneNo'] ?? '',
+          customerDOB: responseData['customer']['DOB'] ?? '',
+          customerGender: responseData['customer']['gender'] ?? '',
+          profilePictureUrl: responseData['customer']['profilePictureUrl'] ?? '',
+        );
 
         return responseData;
       } else {
@@ -82,7 +98,7 @@ class AuthService {
   Future<Map<String, dynamic>> fetchCustomerDetails() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? customerID = prefs.getString('customerID');
+      String? customerID = prefs.getString(CustomerSharedPreferences.customerIDKey);
       if (customerID == null) {
         return {'error': 'No customer ID found'};
       }
@@ -105,7 +121,15 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> registerArtist(String name, String email, String password) async {
+
+  Future<Map<String, dynamic>> registerArtist(
+      String name,
+      String email,
+      String password,
+      String confirmPassword, // Added confirmPassword
+      String dob,
+      String phoneNo,
+      String gender) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/artist/ArtistRegister'),
@@ -116,6 +140,10 @@ class AuthService {
           'name': name,
           'email': email,
           'password': password,
+          'confirmPassword': confirmPassword, // Include confirmPassword
+          'DOB': dob, // Include DOB
+          'phoneNo': phoneNo, // Include phoneNo
+          'gender': gender, // Include gender
         }),
       );
 
@@ -133,7 +161,8 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> loginArtist(String email, String password) async {
+  // Artist Login (No changes required)
+  Future<Map<String, dynamic>> loginArtist(String identifier, String password) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/artist/ArtistLogin'),
@@ -141,7 +170,7 @@ class AuthService {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, String>{
-          'email': email,
+          'identifier': identifier, // Can be email or phone number
           'password': password,
         }),
       );
@@ -151,22 +180,17 @@ class AuthService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
-        print('Login response data: $responseData'); // Debug statement
 
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-
-        // Store the artist ID and auth token in SharedPreferences, handling potential null values
-        String artistID = responseData['artist']['_id'] ?? '';
-        String? authToken = responseData['token']; // Ensure the correct key is used
-
-        await ArtistSharedPreferences.setArtistID(artistID);
-        print('Stored artist ID: $artistID'); // Debug statement
-        if (authToken != null) {
-          await ArtistSharedPreferences.setAuthToken(authToken);
-          print('Stored auth token: $authToken'); // Debug statement
-        } else {
-          print('Auth token is null'); // Debug statement
-        }
+        // Save artist data
+        await ArtistSharedPreferences.saveArtistData(
+          artistID: responseData['artist']['_id'] ?? '',
+          artistName: responseData['artist']['name'] ?? '',
+          artistEmail: responseData['artist']['email'] ?? '',
+          authToken: responseData['token'] ?? '',
+          artistPhoneNo: responseData['artist']['phoneNo'] ?? '',
+          artistDOB: responseData['artist']['DOB'] ?? '',
+          artistGender: responseData['artist']['gender'] ?? '',
+        );
 
         return responseData;
       } else {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart'; // Import for Date formatting
 import 'package:roopkatha/UI/pages/customer/login_page.dart';
 import '../service/auth_service.dart';
 import 'CusVerifyOTP.dart';
@@ -17,7 +18,12 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController(); // <-- New phone number controller
+  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _dobController = TextEditingController(); // For displaying DOB as text
+  String? _selectedGender; // Dropdown gender selection
+
+  DateTime? _selectedDOB; // Store DOB as DateTime object
 
   bool _isLoading = false;
   final AuthService _authService = AuthService();
@@ -95,7 +101,61 @@ class _SignupPageState extends State<SignupPage> {
                       const SizedBox(height: 15),
                       _buildTextField(_passwordController, "Password", Icons.lock, obscureText: true),
                       const SizedBox(height: 15),
+                      _buildTextField(_confirmPasswordController, "Confirm Password", Icons.lock, obscureText: true),
+                      const SizedBox(height: 15),
                       _buildTextField(_phoneController, "Phone Number", Icons.phone, keyboardType: TextInputType.phone),
+                      const SizedBox(height: 15),
+
+                      // Date of Birth Field (Calendar Picker)
+                      GestureDetector(
+                        onTap: () async {
+                          DateTime? pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime.now(),
+                          );
+
+                          if (pickedDate != null) {
+                            setState(() {
+                              _selectedDOB = pickedDate; // Store as DateTime
+                              _dobController.text = DateFormat('yyyy-MM-dd').format(pickedDate); // Format as YYYY-MM-DD
+                            });
+                          }
+                        },
+                        child: AbsorbPointer(
+                          child: _buildTextField(
+                              _dobController, "Date of Birth (YYYY-MM-DD)", Icons.calendar_today),
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+
+                      // Gender Dropdown
+                      DropdownButtonFormField<String>(
+                        value: _selectedGender,
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.person_outline),
+                          hintText: "Select Gender",
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        items: ['Male', 'Female']
+                            .map((gender) => DropdownMenuItem(
+                          value: gender,
+                          child: Text(gender),
+                        ))
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedGender = value;
+                          });
+                        },
+                        validator: (value) => value == null ? 'Please select your gender' : null,
+                      ),
                       const SizedBox(height: 30),
 
                       // "Submit" Button
@@ -150,7 +210,8 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String hintText, IconData icon, {bool obscureText = false, TextInputType keyboardType = TextInputType.text}) {
+  Widget _buildTextField(TextEditingController controller, String hintText, IconData icon,
+      {bool obscureText = false, TextInputType keyboardType = TextInputType.text}) {
     return TextFormField(
       controller: controller,
       obscureText: obscureText,
@@ -165,13 +226,43 @@ class _SignupPageState extends State<SignupPage> {
           borderSide: BorderSide.none,
         ),
       ),
-      validator: (value) => value!.isEmpty ? 'Enter your $hintText' : null,
+      validator: (value) {
+        if (value!.isEmpty) return 'Enter your $hintText';
+        if (hintText == "Confirm Password" && value != _passwordController.text) {
+          return 'Passwords do not match';
+        }
+        return null;
+      },
     );
   }
 
-// Form Submission Function
+  // Form Submission Function
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      // Ensure all fields are filled
+      if (_selectedDOB == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Please select your Date of Birth")),
+        );
+        return;
+      }
+
+      if (_selectedGender == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Please select your Gender")),
+        );
+        return;
+      }
+
+      // Debug: Print form values
+      print("Full Name: ${_fullNameController.text}");
+      print("Email: ${_emailController.text}");
+      print("Password: ${_passwordController.text}");
+      print("Confirm Password: ${_confirmPasswordController.text}");
+      print("Phone Number: ${_phoneController.text}");
+      print("DOB: ${_selectedDOB.toString()}");
+      print("Gender: $_selectedGender");
+
       setState(() {
         _isLoading = true;
       });
@@ -180,6 +271,10 @@ class _SignupPageState extends State<SignupPage> {
         _fullNameController.text,
         _emailController.text,
         _passwordController.text,
+        _confirmPasswordController.text,
+        _phoneController.text,
+        _selectedDOB!, // Pass the DateTime object
+        _selectedGender!,
       );
 
       setState(() {
@@ -187,15 +282,24 @@ class _SignupPageState extends State<SignupPage> {
       });
 
       if (response.containsKey('error')) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['error'])));
-      } else if (response.containsKey('message') && response['message'] == 'Customer registered successfully!') {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Registration successful!')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response['error'])),
+        );
+      } else if (response.containsKey('message') &&
+          response['message'] == 'Customer registered successfully!') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Registration successful!')),
+        );
         Get.to(() => VerifyOtpCustomerScreen(onSuccess: () {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('OTP Verified!')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('OTP Verified!')),
+          );
           Get.off(() => const CustomerLoginPage());
         }), arguments: {'email': _emailController.text});
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Registration failed')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Registration failed')),
+        );
       }
     }
   }

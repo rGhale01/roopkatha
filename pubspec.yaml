@@ -28,6 +28,8 @@ dependencies:
   image_picker: ^1.0.8
   url_launcher: ^6.0.3
   fl_chart: ^0.40.0
+  http_parser:
+  path:
 
 dependency_overrides:
   intl: 0.18.0 # Force intl 0.18.0 to resolve conflicts

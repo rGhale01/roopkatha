@@ -234,6 +234,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
         _isLoading = true;
       });
 
+      // Send the request with 'identifier' instead of 'email'
       final response = await _authService.loginCustomer(email, password);
 
       setState(() {
@@ -241,12 +242,15 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
       });
 
       if (response.containsKey('error')) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['error'])));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(response['error'])));
       } else if (response.containsKey('customer')) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Login successful!')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Login successful!')));
         Get.off(() => CusHomePage()); // Assuming you have a CusHomePage
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Login failed')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Login failed')));
       }
     }
   }
