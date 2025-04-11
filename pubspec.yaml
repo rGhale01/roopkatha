@@ -31,6 +31,7 @@ dependencies:
   http_parser:
   path:
 
+
 dependency_overrides:
   intl: 0.18.0 # Force intl 0.18.0 to resolve conflicts
 

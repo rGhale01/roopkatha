@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:roopkatha/UI/pages/artist/Bottomtab/artist_bottomtab.dart';
 import 'package:roopkatha/UI/pages/service/auth_service.dart';
 import 'package:roopkatha/UI/pages/welcome_page.dart';
 
-import '../../customer/profile/favoutite.dart';
 import '../artist_shared_preferences.dart';
+import '../profile/edit_profiel_ariist.dart';
 
 class ArtistProfile extends StatefulWidget {
   const ArtistProfile({Key? key}) : super(key: key);
@@ -18,7 +17,9 @@ class _ArtistProfileState extends State<ArtistProfile> {
   final AuthService _authService = AuthService();
   bool _isLoading = false;
   String _artistName = '';
+  String _artistPhone = '';
   String _artistEmail = '';
+  String _profilePictureUrl = ''; // Default image
 
   @override
   void initState() {
@@ -32,18 +33,41 @@ class _ArtistProfileState extends State<ArtistProfile> {
     });
 
     try {
+      // Fetch all relevant artist data from shared preferences
+      _artistName = await ArtistSharedPreferences.getArtistName() ?? '';
+      _artistPhone = await ArtistSharedPreferences.getArtistPhoneNo() ?? '';
+      _artistEmail = await ArtistSharedPreferences.getArtistEmail() ?? '';
+      _profilePictureUrl = await ArtistSharedPreferences.getProfilePictureUrl() ?? '';
+
+      // Debug statements to print fetched values
+      print('Fetched artist name: $_artistName');
+      print('Fetched artist phone: $_artistPhone');
+      print('Fetched artist email: $_artistEmail');
+      print('Fetched profile image URL: $_profilePictureUrl');
+
+      // Alternative way using fetchArtistDetails method
+      /*
       final artistData = await ArtistSharedPreferences.fetchArtistDetails();
       setState(() {
         _artistName = artistData['artistName'] ?? '';
+        _artistPhone = artistData['artistPhoneNo'] ?? '';
         _artistEmail = artistData['artistEmail'] ?? '';
+        _profilePictureUrl = artistData['profilePictureUrl'] ?? '';
       });
+      */
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Failed to load artist data')));
+      print('Error fetching artist data: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load artist data: ${e.toString()}')),
+        );
+      }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -52,19 +76,30 @@ class _ArtistProfileState extends State<ArtistProfile> {
       _isLoading = true;
     });
 
-    final response = await _authService.logoutArtist();
+    try {
+      final response = await _authService.logoutArtist();
 
-    setState(() {
-      _isLoading = false;
-    });
-
-    if (response.containsKey('error')) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(response['error'])));
-    } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Logout successful!')));
-      Get.offAll(() => WelcomeScreen()); // <-- Redirect to WelcomePage here
+      if (response.containsKey('error')) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response['error'])),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Logout successful!')),
+        );
+        // Use the correct method name for clearing preferences
+        await ArtistSharedPreferences.clearArtistPreferences();
+        Get.offAll(() => const WelcomeScreen());
+      }
+    } catch (e) {
+      print('Error during logout: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Logout failed: ${e.toString()}')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -72,130 +107,121 @@ class _ArtistProfileState extends State<ArtistProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: Colors.black,
+            size: 20,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: const Text(
+          'Profile',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: SafeArea(
-        child: Column(
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
           children: [
-            const SizedBox(height: 20),
-            const Text(
-              'Profile',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
             const SizedBox(height: 20),
             Stack(
               children: [
-                const CircleAvatar(
-                  radius: 60,
-                  backgroundImage: AssetImage('assets/images/welcome.png'),
+                CircleAvatar(
+                  radius: 65,
+                  backgroundImage: _profilePictureUrl.isNotEmpty && _profilePictureUrl.startsWith('http')
+                      ? NetworkImage(_profilePictureUrl)
+                      : const AssetImage('assets/images/welcome.png') as ImageProvider,
                 ),
                 Positioned(
                   bottom: 0,
                   right: 4,
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.black,
-                    ),
-                    padding: const EdgeInsets.all(6),
-                    child: const Icon(
-                      Icons.edit,
-                      size: 18,
-                      color: Colors.white,
+                  child: GestureDetector(
+                    onTap: () {
+                      Get.to(() => const EditArtistProfilePage());
+                    },
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.black,
+                      ),
+                      padding: const EdgeInsets.all(6),
+                      child: const Icon(
+                        Icons.edit,
+                        size: 18,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Text(
               _artistName,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
+                color: Colors.black,
               ),
             ),
             const SizedBox(height: 4),
             Text(
-              _artistEmail,
+              _artistEmail, // Show email
               style: const TextStyle(
-                color: Colors.grey,
                 fontSize: 14,
+                color: Colors.black54,
+              ),
+            ),
+            Text(
+              _artistPhone,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.black,
               ),
             ),
             const SizedBox(height: 30),
             Expanded(
               child: ListView(
                 children: [
-                  _buildProfileOption(Icons.person_outline, 'Edit Profile', () {
-                    Get.to(() => EditArtistProfilePage());
-                  }),
-                  _buildProfileOption(Icons.notifications_none, 'Notifications', () {
-                    Get.to(() => ArtistNotificationsPage());
-                  }),
-                  _buildProfileOption(Icons.settings_outlined, 'Settings', () {
-                    Get.to(() => SettingsPage());
-                  }),
-                  _buildProfileOption(Icons.logout, 'Log Out', _isLoading ? null : _logout),
+                  _buildProfileOption(
+                    Icons.person_outline,
+                    'Edit Profile',
+                        () {
+                      Get.to(() => const EditArtistProfilePage());
+                    },
+                  ),
+                  _buildProfileOption(
+                    Icons.logout,
+                    'Logout',
+                    _logout,
+                  ),
                 ],
               ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: ArtistBottomtab(currentIndex: 3),
     );
   }
 
-  Widget _buildProfileOption(IconData icon, String text, VoidCallback? onTap) {
-    return Column(
-      children: [
-        ListTile(
-          leading: Icon(icon),
-          title: Text(text),
-          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-          onTap: onTap,
-        ),
-        const Divider(),
-      ],
-    );
-  }
-}
-
-// Assume these are placeholders for actual implementations
-class ArtistNotificationsPage extends StatelessWidget {
-  const ArtistNotificationsPage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Notifications')),
-      body: Center(child: Text('Notifications Page')),
-    );
-  }
-}
-
-class EditArtistProfilePage extends StatelessWidget {
-  const EditArtistProfilePage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Edit Profile')),
-      body: Center(child: Text('Edit Profile Page')),
-    );
-  }
-}
-
-class SettingsPage extends StatelessWidget {
-  const SettingsPage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Settings')),
-      body: Center(child: Text('Settings Page')),
+  Widget _buildProfileOption(IconData icon, String title, VoidCallback onTap) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.black),
+      title: Text(title, style: const TextStyle(color: Colors.black)),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.black),
+      onTap: onTap,
     );
   }
 }

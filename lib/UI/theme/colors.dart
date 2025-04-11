@@ -32,4 +32,5 @@ class AppColor {
   static Color audioBluishBackground = const Color(0xFfdee7fa);
   static Color audioBlueBackground = const Color(0xFF04abe7);
   static Color audioGreyBackground = const Color(0xFFf2f2f2);
+  static Color mainColour = const Color(0x00ff7de5);
 }

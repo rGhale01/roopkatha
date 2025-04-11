@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:roopkatha/UI/pages/artist/Bottomtab/artist_chat.dart';
 import 'package:roopkatha/UI/pages/artist/Bottomtab/artist_profile.dart';
 import 'package:roopkatha/UI/pages/artist/Bottomtab/home_page.dart';
+import 'package:roopkatha/UI/pages/artist/Bottomtab/portfolio.dart';
 import 'package:roopkatha/UI/pages/artist/Bottomtab/service_page.dart';
 
 
@@ -72,7 +73,7 @@ class _ArtistBottomtab extends State<ArtistBottomtab> {
           break;
         case 3:
           Get.to(
-            ArtistProfile(),
+            ArtistPortfolioPage(),
             transition: Transition.rightToLeftWithFade,
             duration: const Duration(seconds: 1),
           );
@@ -88,27 +89,29 @@ class _ArtistBottomtab extends State<ArtistBottomtab> {
       selectedFontSize: 0,
       currentIndex: currentIndex,
       onTap: onTap,
-      selectedItemColor: Colors.black,
-      unselectedItemColor: Colors.grey.withOpacity(0.8),
+      selectedItemColor: Colors.pink,
+      unselectedItemColor: Colors.grey,
       showSelectedLabels: false,
       showUnselectedLabels: false,
       type: BottomNavigationBarType.fixed,
       items: const [
         BottomNavigationBarItem(
-          icon: Icon(Icons.home, size: 30),
-          label: "Home",
+          icon: Icon(Icons.dashboard, size: 30),
+          label: 'Dashboard',
+
         ),
         BottomNavigationBarItem(
-          icon: Icon(explore, size: 30),
-          label: "Chat",
+          icon: Icon(Icons.message, size: 30),
+          label: 'Messages',
         ),
         BottomNavigationBarItem(
-          icon: Icon(calendar, size: 30),
-          label: "Setting",
+          icon: Icon(Icons.miscellaneous_services, size: 30),
+          label: 'Service',
+
         ),
         BottomNavigationBarItem(
-          icon: Icon(chatBubbleText, size: 30),
-          label: "Profile",
+          icon: Icon(Icons.person, size: 30),
+          label: 'Profile',
         ),
       ],
     );

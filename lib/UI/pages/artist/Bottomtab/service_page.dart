@@ -26,18 +26,25 @@ class _ServicePageState extends State<ServicePage> {
     fetchArtistDetails();
   }
 
+  // Fetch artist details from SharedPreferences
   Future<void> fetchArtistDetails() async {
-    String? artistID = await ArtistSharedPreferences.getArtistID();
-    if (artistID != null) {
-      final response = await http.get(Uri.parse('http://10.0.2.2:8000/api/artist/$artistID'));
-      if (response.statusCode == 200) {
-        var data = jsonDecode(response.body);
-        setState(() {
-          artistName = data['name'];
-          profileImageUrl = data['profileImage'];
-        });
-      }
+    try {
+      // Fetching artist details from shared preferences
+      artistName = await ArtistSharedPreferences.getArtistName() ?? '';
+      profileImageUrl = await ArtistSharedPreferences.getProfilePictureUrl() ?? '';
+
+      // Debugging logs
+      print('Artist Name: $artistName');
+      print('Profile Image URL: $profileImageUrl');
+
+      // You can also use API here if needed, like the second page example:
+      // String? artistID = await ArtistSharedPreferences.getArtistID();
+      // final response = await http.get(Uri.parse('http://your-api-url.com/artist/$artistID'));
+      // Handle response and set state
+    } catch (e) {
+      print("Error fetching artist details: $e");
     }
+    setState(() {}); // Trigger UI update
   }
 
   @override

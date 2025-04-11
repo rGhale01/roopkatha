@@ -15,6 +15,10 @@ class ArtistBookingsApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white,
+        primaryColor: Colors.white,
+      ),
       home: ArtistDashboardPage(),
     );
   }
@@ -113,12 +117,13 @@ class _ArtistDashboardPage extends State<ArtistDashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
         title: const Text(
-          'Artist Bookings',
+          'Dashboard',
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w600,

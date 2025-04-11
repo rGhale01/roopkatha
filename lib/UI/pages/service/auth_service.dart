@@ -161,7 +161,7 @@ class AuthService {
     }
   }
 
-  // Artist Login (No changes required)
+  // Artist Login
   Future<Map<String, dynamic>> loginArtist(String identifier, String password) async {
     try {
       final response = await http.post(
@@ -180,34 +180,30 @@ class AuthService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
+        print('Login response data: $responseData'); // Debug statement
 
-        // Save artist data
-        await ArtistSharedPreferences.saveArtistData(
-          artistID: responseData['artist']['_id'] ?? '',
-          artistName: responseData['artist']['name'] ?? '',
-          artistEmail: responseData['artist']['email'] ?? '',
-          authToken: responseData['token'] ?? '',
-          artistPhoneNo: responseData['artist']['phoneNo'] ?? '',
-          artistDOB: responseData['artist']['DOB'] ?? '',
-          artistGender: responseData['artist']['gender'] ?? '',
-        );
+        // Save artist data (PASS THE DATA)
+        await ArtistSharedPreferences.saveArtistData(responseData['artist']);
 
         return responseData;
       } else {
         return json.decode(response.body);
       }
     } catch (e) {
-      print('Error: $e');
+      print('Error during artist login: $e');
       return {'error': e.toString()};
     }
   }
 
+
+  // Update only the logoutArtist function in auth_service.dart
   Future<Map<String, dynamic>> logoutArtist() async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('authToken');
+      // Get token directly from ArtistSharedPreferences
+      String? token = await ArtistSharedPreferences.getAuthToken();
       print('Retrieved token for logout: $token'); // Debug statement
-      if (token == null) {
+
+      if (token == null || token.isEmpty) {
         return {'error': 'No active session found'};
       }
 
@@ -223,8 +219,6 @@ class AuthService {
       print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        await ArtistSharedPreferences.clearArtistPreferences(); // Clear the shared preferences on successful logout
-        await prefs.clear(); // Clear all SharedPreferences on successful logout
         return json.decode(response.body);
       } else {
         return json.decode(response.body);

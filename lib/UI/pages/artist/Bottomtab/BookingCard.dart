@@ -14,12 +14,18 @@ class ArtistBookingCard extends StatelessWidget {
 
     final date = DateTime.parse(availability['date']);
     final formattedDate = DateFormat('EEEE, MMMM d').format(date); // Thursday, October 17
-    final formattedTime = DateFormat.jm().format(DateFormat('HH:mm').parse(availability['startTime']));
+    final formattedStartTime = DateFormat.jm().format(DateFormat('HH:mm').parse(availability['startTime']));
+
+    // Add end time formatting
+    final String formattedEndTime = availability['endTime'] != null
+        ? DateFormat.jm().format(DateFormat('HH:mm').parse(availability['endTime']))
+        : 'Not specified';
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Container(
         decoration: BoxDecoration(
+          color: Colors.white,
           border: Border.all(color: Colors.grey.shade300),
           borderRadius: BorderRadius.circular(12),
         ),
@@ -35,13 +41,40 @@ class ArtistBookingCard extends StatelessWidget {
             user['name'],
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-          subtitle: Row(
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
-              const SizedBox(width: 6),
-              Text(
-                '$formattedDate\n$formattedTime',
-                style: const TextStyle(height: 1.4),
+              Row(
+                children: [
+                  const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+                  const SizedBox(width: 6),
+                  Text(
+                    formattedDate,
+                    style: const TextStyle(height: 1.4),
+                  ),
+                ],
+              ),
+              SizedBox(height: 4),
+              Row(
+                children: [
+                  const Icon(Icons.access_time, size: 16, color: Colors.grey),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Start: $formattedStartTime',
+                    style: const TextStyle(height: 1.4),
+                  ),
+                ],
+              ),
+              SizedBox(height: 4),
+              Row(
+                children: [
+                  const Icon(Icons.access_time_filled, size: 16, color: Colors.grey),
+                  const SizedBox(width: 6),
+                  Text(
+                    'End: $formattedEndTime',
+                    style: const TextStyle(height: 1.4),
+                  ),
+                ],
               ),
             ],
           ),
@@ -50,6 +83,7 @@ class ArtistBookingCard extends StatelessWidget {
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.red,
               side: const BorderSide(color: Colors.red),
+              backgroundColor: Colors.white,
             ),
             child: const Text('Cancel'),
           ),
